@@ -1,0 +1,20 @@
+{
+  "chat_history": [
+    {
+      "role": "user",
+      "content": "Where was the last olympics held? Just tell me the year  & country?"
+    },
+    {
+      "role": "assistant",
+      "content": "\n\nThe last Olympics were held in 2021 in Tokyo, Japan."
+    },
+    {
+      "role": "user",
+      "content": "Which country won the most medals in that? Just tell me the country name"
+    },
+    {
+      "role": "assistant",
+      "content": "The country that won the most medals at the 2021 Olympics in Tokyo was the United States."
+    }
+  ]
+}
