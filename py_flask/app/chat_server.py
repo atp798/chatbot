@@ -7,8 +7,9 @@ import os
 from config import get_config
 from bot.bot_factory import create_bot
 import xmltodict
-import dicttoxml
+from dict2xml import dict2xml
 import time
+import requests
 
 
 class ChatServer:
@@ -136,7 +137,7 @@ class ChatServer:
                     request_json[SESSION_ID], str):
                 return jsonify({"code": 301, "msg": "empty session id"})
 
-            session_id = request_json["FromUserName"] 
+            session_id = request_json["FromUserName"]
             query = request_json["Content"]
 
             context = dict()
@@ -155,19 +156,22 @@ class ChatServer:
 
             res={}
             res["ToUserName"] = request_json["FromUserName"]
-            res["FromUserName"] = request_json["FromUserName"]
+            res["FromUserName"] = request_json["ToUserName"]
             res["CreateTime"] = int(time.time())
             res["MsgType"] = "transfer_customer_service"
             res["Content"] = result
             xml_res = {}
             xml_res["xml"] = res
             logger.info("response={} xml={}".format(result, dict2xml(xml_res)))
-            
+
             # 返回结果到客户端
             return jsonify({"code": 200, "msg": "success", "data": result})
 
 
-	
+        def post2wechat(data):
+            #url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" +
+            pass
+
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
             if self._debug_mode:
