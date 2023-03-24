@@ -27,10 +27,9 @@ class ChatGPTBot(Bot):
 
     def reply(self, query, context=None):
         # acquire reply content
-        if not context or not context.get('type') or context.get(
-                'type') == 'TEXT':
+        if not context.get('type') or context.get('type') == 'TEXT':
             logger.info("[OPEN_AI] query={}".format(query))
-            session_id = context.get('device_id') or context.get('device_id')
+            session_id = context.get('session_id')
 
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)

@@ -112,7 +112,7 @@ class ChatServer:
 
             #parameter constant
             QUERY = "query"
-            DEVICE_ID = "device_id"
+            SESSION_ID = "session_id"
 
             request_json = request.get_json()
             if len(request_json) == 0:
@@ -120,15 +120,15 @@ class ChatServer:
             if QUERY not in request_json or not isinstance(
                     request_json[QUERY], str):
                 return jsonify({"code": 301, "msg": "empty query"})
-            if DEVICE_ID not in request_json or not isinstance(
-                    request_json[DEVICE_ID], str):
-                return jsonify({"code": 301, "msg": "empty device_id"})
+            if SESSION_ID not in request_json or not isinstance(
+                    request_json[SESSION_ID], str):
+                return jsonify({"code": 301, "msg": "empty session id"})
 
             query = request_json[QUERY]
-            device_id = request_json[DEVICE_ID]
+            session_id = request_json[SESSION_ID]
 
             context = dict()
-            context['device_id'] = device_id
+            context['session_id'] = session_id
 
             response = None
             result = ""
