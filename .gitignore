@@ -1,6 +1,8 @@
 # user custom
 *nohup.out
 log.txt
+# export_api_token.sh
+config.json
 
 
 # Byte-compiled / optimized / DLL files

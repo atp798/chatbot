@@ -19,6 +19,7 @@ def load_config():
     # 将json字符串反序列化为dict类型
     config = json.loads(config_str)
     logger.info("[INIT] load config: {}".format(config))
+    return config
 
 
 def get_root():
@@ -71,16 +72,20 @@ class ConfigParser:
     def __init__(self):
         self._args = get_args()
         self._env_args = get_args_from_env()
-        self.debug_mode = self._args.debug
-        self.ip_addr = self._args.ip_addr
-        self.port = self._args.port
-        self.api_key = self._env_args.get(OPENAI_API_KEY)
-        self.expires_in_seconds = 3600
-        self.rate_limit_chatgpt = 60
-        self.clear_memory_commands = "xjieoajgojksakgaj"
-        self.clear_all_memory_commands = "ajiojgwijjsag"
-        self.conversation_max_tokens = 1024
-        self.character_desc = ""
+        self._json_config = load_config()
+        self.debug_mode = self._json_config.get("debug_mode")
+        self.ip_addr = self._json_config.get("ip_addr")
+        self.port = self._json_config.get("port")
+        self.api_key = self._json_config.get("open_ai_api_key")
+        self.expires_in_seconds = self._json_config.get("expires_in_seconds")
+        self.rate_limit_chatgpt = self._json_config.get("rate_limit_chatgpt")
+        self.clear_memory_commands = self._json_config.get(
+            "clear_memory_commands")
+        self.clear_all_memory_commands = self._json_config.get(
+            "clear_all_memory_commands")
+        self.conversation_max_tokens = self._json_config.get(
+            "conversation_max_tokens")
+        self.character_desc = self._json_config.get("character_desc")
 
 
 config = ConfigParser()
