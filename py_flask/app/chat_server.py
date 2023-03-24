@@ -135,7 +135,7 @@ class ChatServer:
             try:
                 response = self._bot.reply(query, context)
                 # 从响应中获取结果
-                result = response.choices[0].message.content
+                result = response
             except Exception:
                 if self._debug_mode:
                     print(response)

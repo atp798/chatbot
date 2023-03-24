@@ -142,13 +142,11 @@ class Session(object):
             self._all_sessions[session_id] = session
         user_item = {'role': 'user', 'content': query}
         session.append(user_item)
-        print("all session: ", session)
         return session
 
     def save_session(self, answer, session_id, total_tokens):
         session = self._all_sessions.get(session_id)
         if session:
-            print("session retrieve: ", session)
             # append conversation
             gpt_item = {'role': 'assistant', 'content': answer}
             session.append(gpt_item)
@@ -159,7 +157,7 @@ class Session(object):
 
     def discard_exceed_conversation(self, session, max_tokens, total_tokens):
         dec_tokens = int(total_tokens)
-        # logger.info("prompt tokens used={},max_tokens={}".format(used_tokens,max_tokens))
+        logger.debug("prompt tokens used={},max_tokens={}".format(dec_tokens,max_tokens))
         while dec_tokens > max_tokens:
             # pop first conversation
             if len(session) > 3:
