@@ -32,32 +32,33 @@ def read_file(path):
 
 
 def get_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--debug",
-                        "-d",
-                        type=bool,
-                        default=False,
-                        required=False,
-                        help="Whether enable debug mode.")
-    parser.add_argument("--ip_addr",
-                        "-a",
-                        type=str,
-                        default="127.0.0.1",
-                        required=False,
-                        help="Web server listen address.")
-    parser.add_argument("--port",
-                        "-p",
-                        type=int,
-                        default=9081,
-                        required=False,
-                        help="Web server listen port.")
-    parser.add_argument("--config_file",
-                        "-c",
-                        type=str,
-                        required=False,
-                        help='Config file path.')
-    args = parser.parse_args()
-    return args
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--debug",
+    #                     "-d",
+    #                     type=bool,
+    #                     default=False,
+    #                     required=False,
+    #                     help="Whether enable debug mode.")
+    # parser.add_argument("--ip_addr",
+    #                     "-a",
+    #                     type=str,
+    #                     default="127.0.0.1",
+    #                     required=False,
+    #                     help="Web server listen address.")
+    # parser.add_argument("--port",
+    #                     "-p",
+    #                     type=int,
+    #                     default=9081,
+    #                     required=False,
+    #                     help="Web server listen port.")
+    # parser.add_argument("--config_file",
+    #                     "-c",
+    #                     type=str,
+    #                     required=False,
+    #                     help='Config file path.')
+    # args = parser.parse_args()
+    # return args
+    pass
 
 
 def get_args_from_env():
@@ -70,7 +71,7 @@ def get_args_from_env():
 class ConfigParser:
 
     def __init__(self):
-        self._args = get_args()
+        #self._args = get_args()
         self._env_args = get_args_from_env()
         self._json_config = load_config()
         self.debug_mode = self._json_config.get("debug_mode")
