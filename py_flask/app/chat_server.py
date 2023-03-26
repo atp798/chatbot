@@ -170,6 +170,7 @@ class ChatServer:
 
         def post2wechat(data):
             #url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" +
+
             pass
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
