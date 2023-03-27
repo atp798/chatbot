@@ -2,11 +2,10 @@ import json
 import time
 import threading
 import sys
-sys.path.append("./")
 from urllib import parse, request
 from config import get_config
 from common.log import logger
-from singleton import SingletonC
+from common.singleton import SingletonC
 import requests
 
 @SingletonC
@@ -93,7 +92,7 @@ def post_respons2wxmp(res=None, touser=None):
         "touser": touser, 
         "msgtype": "text", 
         "text": {
-            "content": res
+            "content": res.encode(encoding='UTF-8',errors='strict')
             }
     }
     requests.post(url=url, json=body)
