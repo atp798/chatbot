@@ -80,7 +80,7 @@ class ChatGPTBot(Bot):
                 presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
             )
             tdiff = time.time() - btime
-            logger.info("[openai] openai.ChatCompletion.create time={}", int(tdiff * 1000))
+            logger.info("[openai] openai.ChatCompletion.create time={}".format(int(tdiff * 1000)))
             # logger.info("[ChatGPT] reply={}, total_tokens={}".format(response.choices[0]['message']['content'], response["usage"]["total_tokens"]))
             return {
                 "total_tokens": response["usage"]["total_tokens"],
