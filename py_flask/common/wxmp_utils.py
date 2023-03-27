@@ -8,7 +8,6 @@ from config import get_config
 from common.log import logger
 from common.singleton import SingletonC
 import requests
-from dict2xml import dict2xml
 import xmltodict
 from flask import jsonify
 
@@ -109,6 +108,9 @@ def do_wechat_chat_completion(request_json, bot):
     #parameter constant
     logger.info("request_json={}".format(request_json))
 
+    if request_json["MsgType"] == "event":
+        logger.info("handle subscribe event, return")
+        return ""
     session_id = request_json["FromUserName"]
     query = request_json["Content"]
 
@@ -117,13 +119,19 @@ def do_wechat_chat_completion(request_json, bot):
 
     response = None
     result = ""
-    try:
-        response = bot.reply(query, context)
-        # 从响应中获取结果
-        result = response
-    except Exception:
-        return False
-
+    retry = 3
+    while retry > 0:
+        retry -= 1
+        try:
+            response = bot.reply(query, context)
+            # 从响应中获取结果
+            result = response
+        except Exception as error:
+            logger.info("get openai err=".format(error))
+            continue
+        if result:
+            break
+    logger.info("openai ans:".format(result))
     toUserName = request_json["FromUserName"]
     fromUserName = request_json["ToUserName"] 
 
