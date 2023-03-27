@@ -7,6 +7,7 @@ from urllib import parse, request
 from config import get_config
 from common.log import logger
 from singleton import SingletonC
+import requests
 
 @SingletonC
 class WxmpToken(object):
@@ -29,6 +30,8 @@ class WxmpToken(object):
                 self.token = self._get_wxCode_token()
                 self.timestamp = time.time()
                 logger.info("get newtoken={} oldtoken={} time={}".format(self.token, oldtoken, self.timestamp))
+                time.sleep(1.0/100)
+                continue
             else:
                 nowtime = time.time()
                 timediff = nowtime - self.timestamp
@@ -77,23 +80,25 @@ def get_wxmp_token():
     return wxToken.get_token()
 
 
-def post_respons2wxmp(res=None):
-    pass
+def post_respons2wxmp(res=None, touser=None):
+    if not(res and touser):
+        return False
+    retry = 10
+    while(get_wxmp_token() is None and retry > 0):
+        time.sleep(1)
+        retry -= 1
+
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token()
+    body={
+        "touser": touser, 
+        "msgtype": "text", 
+        "text": {
+            "content": res
+            }
+    }
+    requests.post(url=url, json=body)
+    return True
 
 
 if __name__ == '__main__':
-
-    res = \
-    """<xml>
-  <ToUserName><![CDATA[{toUser}]]></ToUserName>
-  <FromUserName><![CDATA[{fromUser}]]></FromUserName>
-  <CreateTime>{ctime}</CreateTime>
-  <MsgType><![CDATA[text]]></MsgType>
-  <Content><![CDATA[{content}]]></Content>
-</xml>""".format(toUser="11", fromUser="22", ctime=time.time(), content="33")
-    print("tttttttt=", res)
-    for i in range(1, 3):
-        #logger.info("get_token={}".format(get_wxmp_token()))
-        #time.sleep(1)
-        pass
-    wxToken.close()
+    post_respons2wxmp("test", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")

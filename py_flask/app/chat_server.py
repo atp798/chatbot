@@ -11,6 +11,7 @@ from dict2xml import dict2xml
 import time
 import requests
 import traceback
+from common.wxmp_utils import post_respons2wxmp
 
 
 class ChatServer:
@@ -162,26 +163,13 @@ class ChatServer:
 
             toUserName = request_json["FromUserName"]
             fromUserName = request_json["ToUserName"] 
-            res = {}
-            res["ToUserName"] = toUserName
-            res["FromUserName"] = fromUserName
-            res["CreateTime"] = int(time.time())
-            res["MsgType"] = "transfer_customer_service"
-            res["Content"] = result
-            xml_res = {}
-            xml_res["xml"] = res
-            xml_res = \
-                """<xml>
-  <ToUserName><![CDATA[{toUser}]]></ToUserName>
-  <FromUserName><![CDATA[{fromUser}]]></FromUserName>
-  <CreateTime>{ctime}</CreateTime>
-  <MsgType><![CDATA[text]]></MsgType>
-  <Content><![CDATA[{content}]]></Content>
-</xml>""".format(toUser=toUserName, fromUserName=fromUserName, ctime=time.time(), content=result)
-            logger.info("response={} xml={}".format(result, dict2xml(xml_res)))
 
-            # 返回结果到客户端
-            return xml_res
+            ret = post_respons2wxmp(result, toUserName)
+            if ret:
+                # 返回结果到客户端
+                return "success", 200
+            else:
+                return "fail", 400
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
