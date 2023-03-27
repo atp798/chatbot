@@ -12,6 +12,7 @@ import time
 import requests
 import traceback
 from common.wxmp_utils import post_respons2wxmp
+import threading
 
 
 class ChatServer:
@@ -164,12 +165,8 @@ class ChatServer:
             toUserName = request_json["FromUserName"]
             fromUserName = request_json["ToUserName"] 
 
-            ret = post_respons2wxmp(result, toUserName)
-            if ret:
-                # 返回结果到客户端
-                return "success", 200
-            else:
-                return "fail", 400
+            threading.Thread(target=self._auto_get_token, args=(result, toUserName)).start()
+            return "success", 200
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
