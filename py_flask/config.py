@@ -86,6 +86,8 @@ class ConfigParser:
         self.conversation_max_tokens = self._json_config.get(
             "conversation_max_tokens")
         self.character_desc = self._json_config.get("character_desc")
+        self.appid = self._json_config.get("appid")
+        self.secret = self._json_config.get("secret")
 
 
 config = ConfigParser()

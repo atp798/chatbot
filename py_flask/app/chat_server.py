@@ -9,7 +9,6 @@ from bot.bot_factory import create_bot
 import xmltodict
 from dict2xml import dict2xml
 import time
-import requests
 
 
 class ChatServer:
@@ -166,12 +165,6 @@ class ChatServer:
 
             # 返回结果到客户端
             return jsonify({"code": 200, "msg": "success", "data": result})
-
-
-        def post2wechat(data):
-            #url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" +
-
-            pass
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
