@@ -6,8 +6,6 @@
 - pip
 - openai >= 0.27.0
 - requests
-- xmltodict
-- dict2xml
 - flask
 - gunicorn
 - gevent
