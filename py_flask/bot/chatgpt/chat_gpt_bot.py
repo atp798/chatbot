@@ -45,6 +45,7 @@ class ChatGPTBot(Bot):
             #     # reply in stream
             #     return self.reply_text_stream(query, new_query, session_id)
 
+            btime = time.clock()
             reply_content = self.reply_text(session, session_id, 0)
             logger.debug(
                 "[OPEN_AI] new_query={}, session_id={}, reply_cont={}".format(
@@ -53,7 +54,8 @@ class ChatGPTBot(Bot):
                 self._session.save_session(reply_content["content"],
                                            session_id,
                                            reply_content["total_tokens"])
-            logger.info("[OPEN_AI] end process query={}".format(query))
+            tdiff = time.clock() - btime
+            logger.info("[OPEN_AI] end process query={}, time={}".format(query, tdiff * 1000))
             return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0) -> dict:
@@ -87,9 +89,7 @@ class ChatGPTBot(Bot):
             logger.warn(e)
             if retry_count < 1:
                 time.sleep(5)
-                logger.warn(
-                    "[OPEN_AI] RateLimit exceed, 第{}次重试".format(retry_count +
-                                                                1))
+                logger.warn("[OPEN_AI] RateLimit exceed, 第{}次重试".format(retry_count + 1))
                 return self.reply_text(session, session_id, retry_count + 1)
             else:
                 return {"completion_tokens": 0, "content": "提问太快啦，请休息一下再问我吧"}
