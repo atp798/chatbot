@@ -105,13 +105,8 @@ def post_respons2wxmp(res=None, touser=None):
     logger.info("send msg={}".format(text)) 
     return True
 
-def do_wechat_chat_completion(request, bot):
+def do_wechat_chat_completion(request_json, bot):
     #parameter constant
-    logger.info(
-        "request={} headers={} reqpath={} args={} data={} form={}".
-        format(request, request.headers, request.path, request.args,
-                request.data, request.form))
-    request_json = xmltodict.parse(request.data)['xml']
     logger.info("request_json={}".format(request_json))
 
     session_id = request_json["FromUserName"]

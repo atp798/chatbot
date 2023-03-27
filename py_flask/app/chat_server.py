@@ -121,7 +121,8 @@ class ChatServer:
             if self._debug_mode:
                 debug_request(request)
 
-            threadng.Thread(do_wechat_chat_completion, args(request, self._bot)).start()
+            request_json = xmltodict.parse(request.data)['xml']
+            threading.Thread(target=do_wechat_chat_completion, args=(request_json, self._bot)).start()
             return "success", 200
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
