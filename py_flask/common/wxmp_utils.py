@@ -2,6 +2,7 @@ import json
 import time
 import threading
 import sys
+#sys.path.append("./")
 from urllib import parse, request
 from config import get_config
 from common.log import logger
@@ -87,17 +88,20 @@ def post_respons2wxmp(res=None, touser=None):
         time.sleep(1)
         retry -= 1
 
-    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token()
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token() + "&charset=utf-8";
     body={
         "touser": touser, 
         "msgtype": "text", 
         "text": {
-            "content": res.encode(encoding='UTF-8',errors='strict')
+            "content": res
             }
     }
-    requests.post(url=url, json=body)
+    headers = {'content-type': 'charset=utf8'}
+    #text=requests.post(url=url, json=json.loads(json.dumps(res, ensure_ascii=False), encoding='utf-8'))
+    text=requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
+    logger.info("send msg={}".format(text)) 
     return True
 
 
 if __name__ == '__main__':
-    post_respons2wxmp("test", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
+    post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
