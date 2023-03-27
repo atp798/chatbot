@@ -165,8 +165,9 @@ class ChatServer:
             toUserName = request_json["FromUserName"]
             fromUserName = request_json["ToUserName"] 
 
-            threading.Thread(target=self._auto_get_token, args=(result, toUserName)).start()
-            return "success", 200
+            threading.Thread(target=post_respons2wxmp, args=(result, toUserName)).start()
+            logger.info("do response to wxmp")
+            return ""
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
