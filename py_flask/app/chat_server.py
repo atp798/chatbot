@@ -9,6 +9,8 @@ from bot.bot_factory import create_bot
 import xmltodict
 from dict2xml import dict2xml
 import time
+import requests
+import traceback
 
 
 class ChatServer:
@@ -108,13 +110,15 @@ class ChatServer:
             # 返回结果到客户端
             return jsonify({"code": 200, "msg": "success", "data": result})
 
-        @self._app.route("/openai/session/wechat/chat-completion", methods=["GET"])
+        @self._app.route("/openai/session/wechat/chat-completion",
+                         methods=["GET"])
         def do_wechat_check():
             logger.info("echostr +++ {}".format(request.args.get("echostr")))
             #return jsonify({"code": 200, "msg": "success", "data": request.args.get("echostr")})
             return request.args.get("echostr"), 200
 
-        @self._app.route("/openai/session/wechat/chat-completion", methods=["POST"])
+        @self._app.route("/openai/session/wechat/chat-completion",
+                         methods=["POST"])
         def session_wechat_chat_completion():
             if self._debug_mode:
                 debug_request(request)
@@ -123,7 +127,10 @@ class ChatServer:
             QUERY = "Content"
             SESSION_ID = "FromUserName"
 
-            logger.info("request={} headers={} reqpath={} args={} data={} form={}".format(request, request.headers, request.path, request.args, request.data, request.form))
+            logger.info(
+                "request={} headers={} reqpath={} args={} data={} form={}".
+                format(request, request.headers, request.path, request.args,
+                       request.data, request.form))
             request_json = xmltodict.parse(request.data)['xml']
             logger.info("request_json={}".format(request_json))
 
@@ -153,7 +160,7 @@ class ChatServer:
                     print(response)
                 return jsonify({"code": 302, "msg": "internal error"})
 
-            res={}
+            res = {}
             res["ToUserName"] = request_json["FromUserName"]
             res["FromUserName"] = request_json["ToUserName"]
             res["CreateTime"] = int(time.time())
@@ -170,7 +177,7 @@ class ChatServer:
         def session_chat_completion():
             if self._debug_mode:
                 debug_request(request)
-
+                
             #parameter constant
             QUERY = "query"
             SESSION_ID = "session_id"
@@ -209,6 +216,9 @@ class ChatServer:
         self._app.run(host=self._ip_addr,
                       port=self._port,
                       debug=self._debug_mode)
+
+    def __call__(self, environ, start_response):
+        return self._app(environ, start_response)
 
 
 # 启动 Flask 应用程序
