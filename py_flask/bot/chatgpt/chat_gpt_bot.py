@@ -55,7 +55,7 @@ class ChatGPTBot(Bot):
                                            session_id,
                                            reply_content["total_tokens"])
             tdiff = time.time() - btime
-            logger.info("[OPEN_AI] end process query={}, time={}".format(query, tdiff * 1000))
+            logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
             return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0) -> dict:
@@ -69,6 +69,7 @@ class ChatGPTBot(Bot):
         try:
             if self._enable_rate_limit and not self._tb4chatgpt.get_token():
                 return {"completion_tokens": 0, "content": "提问太快啦，请休息一下再问我吧"}
+            btime = time.time()
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",  # 对话模型的名称
                 messages=session,
@@ -78,6 +79,8 @@ class ChatGPTBot(Bot):
                 frequency_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
                 presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
             )
+            tdiff = time.time() - btime
+            logger.info("[openai] openai.ChatCompletion.create time={}", int(tdiff * 1000))
             # logger.info("[ChatGPT] reply={}, total_tokens={}".format(response.choices[0]['message']['content'], response["usage"]["total_tokens"]))
             return {
                 "total_tokens": response["usage"]["total_tokens"],
