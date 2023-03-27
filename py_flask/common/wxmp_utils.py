@@ -82,7 +82,18 @@ def post_respons2wxmp(res=None):
 
 
 if __name__ == '__main__':
+
+    res = \
+    """<xml>
+  <ToUserName><![CDATA[{toUser}]]></ToUserName>
+  <FromUserName><![CDATA[{fromUser}]]></FromUserName>
+  <CreateTime>{ctime}</CreateTime>
+  <MsgType><![CDATA[text]]></MsgType>
+  <Content><![CDATA[{content}]]></Content>
+</xml>""".format(toUser="11", fromUser="22", ctime=time.time(), content="33")
+    print("tttttttt=", res)
     for i in range(1, 3):
-        logger.info("get_token={}".format(get_wxmp_token()))
-        time.sleep(1)
+        #logger.info("get_token={}".format(get_wxmp_token()))
+        #time.sleep(1)
+        pass
     wxToken.close()

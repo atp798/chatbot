@@ -160,18 +160,28 @@ class ChatServer:
                     print(response)
                 return jsonify({"code": 302, "msg": "internal error"})
 
+            toUserName = request_json["FromUserName"]
+            fromUserName = request_json["ToUserName"] 
             res = {}
-            res["ToUserName"] = request_json["FromUserName"]
-            res["FromUserName"] = request_json["ToUserName"]
+            res["ToUserName"] = toUserName
+            res["FromUserName"] = fromUserName
             res["CreateTime"] = int(time.time())
             res["MsgType"] = "transfer_customer_service"
             res["Content"] = result
             xml_res = {}
             xml_res["xml"] = res
+            xml_res = \
+                """<xml>
+  <ToUserName><![CDATA[{toUser}]]></ToUserName>
+  <FromUserName><![CDATA[{fromUser}]]></FromUserName>
+  <CreateTime>{ctime}</CreateTime>
+  <MsgType><![CDATA[text]]></MsgType>
+  <Content><![CDATA[{content}]]></Content>
+</xml>""".format(toUser=toUserName, fromUserName=fromUserName, ctime=time.time(), content=result)
             logger.info("response={} xml={}".format(result, dict2xml(xml_res)))
 
             # 返回结果到客户端
-            return jsonify({"code": 200, "msg": "success", "data": result})
+            return xml_res
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
