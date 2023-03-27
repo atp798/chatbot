@@ -45,7 +45,7 @@ class ChatGPTBot(Bot):
             #     # reply in stream
             #     return self.reply_text_stream(query, new_query, session_id)
 
-            btime = time.clock()
+            btime = time.time()
             reply_content = self.reply_text(session, session_id, 0)
             logger.debug(
                 "[OPEN_AI] new_query={}, session_id={}, reply_cont={}".format(
@@ -54,7 +54,7 @@ class ChatGPTBot(Bot):
                 self._session.save_session(reply_content["content"],
                                            session_id,
                                            reply_content["total_tokens"])
-            tdiff = time.clock() - btime
+            tdiff = time.time() - btime
             logger.info("[OPEN_AI] end process query={}, time={}".format(query, tdiff * 1000))
             return reply_content["content"]
 
