@@ -28,7 +28,7 @@ class ChatGPTBot(Bot):
     def reply(self, query, context=None):
         # acquire reply content
         if not context.get('type') or context.get('type') == 'TEXT':
-            logger.info("[OPEN_AI] query={}".format(query))
+            logger.info("[OPEN_AI] begin process query={}".format(query))
             session_id = context.get('session_id')
 
             if query == self._clear_memory_commands:
@@ -53,6 +53,7 @@ class ChatGPTBot(Bot):
                 self._session.save_session(reply_content["content"],
                                            session_id,
                                            reply_content["total_tokens"])
+            logger.info("[OPEN_AI] end process query={}".format(query))
             return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0) -> dict:

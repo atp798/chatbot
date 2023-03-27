@@ -101,12 +101,12 @@ def post_respons2wxmp(res=None, touser=None):
     headers = {'content-type': 'charset=utf8'}
     #text=requests.post(url=url, json=json.loads(json.dumps(res, ensure_ascii=False), encoding='utf-8'))
     text=requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
-    logger.info("send msg={}".format(text)) 
+    logger.info("post msg to wxmp, status={}".format(text)) 
     return True
 
 def do_wechat_chat_completion(request_json, bot):
     #parameter constant
-    logger.info("request_json={}".format(request_json))
+    logger.info("begin process request_json={}".format(request_json))
 
     if request_json["MsgType"] == "event":
         logger.info("handle subscribe event, return")
@@ -131,12 +131,11 @@ def do_wechat_chat_completion(request_json, bot):
             continue
         if result:
             break
-    logger.info("openai ans:{}".format(result))
+    logger.info("end peocess request, ans:{}".format(result))
     toUserName = request_json["FromUserName"]
     fromUserName = request_json["ToUserName"] 
 
     post_respons2wxmp(result, toUserName)
-    logger.info("do response to wxmp")       
 
 if __name__ == '__main__':
     post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
