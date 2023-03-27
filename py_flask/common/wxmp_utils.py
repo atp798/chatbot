@@ -8,6 +8,9 @@ from config import get_config
 from common.log import logger
 from common.singleton import SingletonC
 import requests
+from dict2xml import dict2xml
+import xmltodict
+from flask import jsonify
 
 @SingletonC
 class WxmpToken(object):
@@ -102,6 +105,35 @@ def post_respons2wxmp(res=None, touser=None):
     logger.info("send msg={}".format(text)) 
     return True
 
+def do_wechat_chat_completion(request, bot):
+    #parameter constant
+    logger.info(
+        "request={} headers={} reqpath={} args={} data={} form={}".
+        format(request, request.headers, request.path, request.args,
+                request.data, request.form))
+    request_json = xmltodict.parse(request.data)['xml']
+    logger.info("request_json={}".format(request_json))
+
+    session_id = request_json["FromUserName"]
+    query = request_json["Content"]
+
+    context = dict()
+    context['session_id'] = session_id
+
+    response = None
+    result = ""
+    try:
+        response = bot.reply(query, context)
+        # 从响应中获取结果
+        result = response
+    except Exception:
+        return False
+
+    toUserName = request_json["FromUserName"]
+    fromUserName = request_json["ToUserName"] 
+
+    post_respons2wxmp(result, toUserName)
+    logger.info("do response to wxmp")       
 
 if __name__ == '__main__':
     post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")

@@ -7,11 +7,7 @@ import os
 from config import get_config
 from bot.bot_factory import create_bot
 import xmltodict
-from dict2xml import dict2xml
-import time
-import requests
-import traceback
-from common.wxmp_utils import post_respons2wxmp
+from common.wxmp_utils import do_wechat_chat_completion
 import threading
 
 
@@ -125,49 +121,8 @@ class ChatServer:
             if self._debug_mode:
                 debug_request(request)
 
-            #parameter constant
-            QUERY = "Content"
-            SESSION_ID = "FromUserName"
-
-            logger.info(
-                "request={} headers={} reqpath={} args={} data={} form={}".
-                format(request, request.headers, request.path, request.args,
-                       request.data, request.form))
-            request_json = xmltodict.parse(request.data)['xml']
-            logger.info("request_json={}".format(request_json))
-
-            if len(request_json) == 0:
-                return jsonify({"code": 301, "msg": "empty request"})
-            if QUERY not in request_json or not isinstance(
-                    request_json[QUERY], str):
-                return jsonify({"code": 301, "msg": "empty query"})
-            if SESSION_ID not in request_json or not isinstance(
-                    request_json[SESSION_ID], str):
-                return jsonify({"code": 301, "msg": "empty session id"})
-
-            session_id = request_json["FromUserName"]
-            query = request_json["Content"]
-
-            context = dict()
-            context['session_id'] = session_id
-
-            response = None
-            result = ""
-            try:
-                response = self._bot.reply(query, context)
-                # 从响应中获取结果
-                result = response
-            except Exception:
-                if self._debug_mode:
-                    print(response)
-                return jsonify({"code": 302, "msg": "internal error"})
-
-            toUserName = request_json["FromUserName"]
-            fromUserName = request_json["ToUserName"] 
-
-            threading.Thread(target=post_respons2wxmp, args=(result, toUserName)).start()
-            logger.info("do response to wxmp")
-            return ""
+            threadng.Thread(do_wechat_chat_completion, args(request, self._bot)).start()
+            return "success", 200
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
