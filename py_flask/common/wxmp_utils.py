@@ -131,7 +131,7 @@ def do_wechat_chat_completion(request_json, bot):
             continue
         if result:
             break
-    logger.info("openai ans:".format(result))
+    logger.info("openai ans:{}".format(result))
     toUserName = request_json["FromUserName"]
     fromUserName = request_json["ToUserName"] 
 
