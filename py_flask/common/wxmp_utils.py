@@ -104,6 +104,28 @@ def post_respons2wxmp(res=None, touser=None):
     logger.info("post msg to wxmp, status={}".format(text)) 
     return True
 
+def post_img_respons2wxmp(res=None, touser=None):
+    if not(res and touser):
+        return False
+    retry = 10
+    while(get_wxmp_token() is None and retry > 0):
+        time.sleep(1)
+        retry -= 1
+
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token() + "&charset=utf-8";
+    body={
+        "touser": touser, 
+        "msgtype": "image", 
+        "text": {
+            "content": res
+            }
+    }
+    headers = {'content-type': 'charset=utf8'}
+    #text=requests.post(url=url, json=json.loads(json.dumps(res, ensure_ascii=False), encoding='utf-8'))
+    text=requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
+    logger.info("post msg to wxmp, status={}".format(text)) 
+    return True
+
 def do_wechat_chat_completion(request_json, bot):
     #parameter constant
     logger.info("begin process request_json={}".format(request_json))
@@ -138,7 +160,29 @@ def do_wechat_chat_completion(request_json, bot):
     if not result:
         result = "发生未知错误，系统正在修复中，请稍后重试..."
 
-    post_respons2wxmp(result, toUserName)
+    if context['type'] == "TEXT":
+        post_respons2wxmp(result, toUserName)
+        return
+    if context['type'] == "IMAGE":
+        post_img_respons2wxmp(result, toUserName)
+        return
+
+def Upload_Media_Img():
+    access_token = "67_nTGLtyNvbwCt_I6kCsdXUehcQQXnmoY9vUVSlbL0FJCbQzQEPQoVE1obczatyKjm-Q296XcVe3ipbqTWEELOZFXrqltj0ceeTxuP9B07Fhh3gRhV2f4C8rAUFlEPEIaAAAJYC"
+    url = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=" + access_token +"&type=image"
+    # 上传文件
+    params = {"access_token": access_token,
+              "type":"image"}
+    #test.jpg为本地要上传的素材
+    with open('test.jpg', 'rb') as fp:
+        files = {'media': fp}
+        res = requests.post(url, files=files)
+        res = json.loads(str(res.content, 'utf8'))
+        print(res)
+        media_id = res["media_id"]
+    
+    #返回素材ID
+    return media_id
 
 if __name__ == '__main__':
     post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")

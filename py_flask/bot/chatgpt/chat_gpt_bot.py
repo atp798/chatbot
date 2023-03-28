@@ -7,6 +7,8 @@ from common.expired_dict import ExpiredDict
 from common.session import Session
 import openai
 import time
+import requests
+import io
 
 
 # OpenAI对话模型API (可用)
@@ -31,9 +33,11 @@ class ChatGPTBot(Bot):
         '''
             type and session_id is important in context!!!
         '''
-        msgtype = context.get('type') 
+        msgtype = context.get('type')
+        msgtype = "IMAGE" if query.startswith("画") else msgtype
         if msgtype is None:
             return ""
+
         logger.info("[OPEN_AI] begin process query={}".format(query))
         session_id = context.get('session_id')
 
@@ -53,14 +57,14 @@ class ChatGPTBot(Bot):
         logger.debug("[OPEN_AI] session query={}".format(session))
 
         btime = time.time()
-        reply_content = self.reply_text(session, session_id, 0)
-        logger.debug(
-            "[OPEN_AI] new_query={}, session_id={}, reply_cont={}".format(
-                session, session_id, reply_content["content"]))
-        if reply_content["completion_tokens"] > 0:
-            self._session.save_session(reply_content["content"],
-                                        session_id,
-                                        reply_content["total_tokens"])
+        if msgtype == "TEXT":
+            reply_content = self.reply_text(session, session_id, 0)
+            if reply_content["completion_tokens"] > 0:
+                self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
+
+        if msgtype == "IMAGE":
+            reply_content = self.reply_image(query, 0)
+
         tdiff = time.time() - btime
         logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
         return reply_content["content"]
@@ -116,5 +120,29 @@ class ChatGPTBot(Bot):
             Session.clear_session(session_id)
             return {"completion_tokens": 0, "content": "请再问我一次吧"}
 
+    def reply_image(self, query, retry_count=0):
+        try:
+            logger.info("[OPEN_AI] image_query={}".format(query))
+            response = openai.Image.create(
+                prompt=query,    #图片描述
+                n=1,             #每次生成图片的数量
+                size="1024x1024"   #图片大小,可选有 256x256, 512x512, 1024x1024
+            )
+            image_url = response['data'][0]['url']
+            # 图片下载
+            pic_res = requests.get(image_url, stream=True)
+            image_storage = io.BytesIO()
+            for block in pic_res.iter_content(1024):
+                image_storage.write(block)
+            image_storage.seek(0)
+            logger.info("[OPEN_AI] image_url={}".format(image_url))
+            return {"completion_images": 1, "content": image_storage}
 
-
+        except openai.error.RateLimitError as e:
+            logger.warn(e)
+            if retry_count < 1:
+                time.sleep(5)
+                logger.warn("[OPEN_AI] ImgCreate RateLimit exceed, 第{}次重试".format(retry_count+1))
+                return self.create_img(query, retry_count+1)
+            else:
+                return "请求太快啦，请休息一下再问我吧"
