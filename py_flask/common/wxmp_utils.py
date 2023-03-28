@@ -10,6 +10,7 @@ from common.singleton import SingletonC
 import requests
 import xmltodict
 from flask import jsonify
+import os
 
 @SingletonC
 class WxmpToken(object):
@@ -111,20 +112,23 @@ def post_img_respons2wxmp(image_url=None, touser=None):
     while(get_wxmp_token() is None and retry > 0):
         time.sleep(1)
         retry -= 1
-    media_id = img_upload(image_url)
 
-    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token() + "&charset=utf-8";
-    body={
-        "touser": touser, 
-        "msgtype": "image", 
-        "text": {
-            "content": res
-            }
+    local_path = touser + '_' + str(int(time.time() * 1000)) + '.png'
+    download_image(image_url, local_path)
+    media_id = img_upload(image_url)
+    delete_image(local_path)
+
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token()
+    body = {
+        "touser": touser,
+        "msgtype": "image",
+        "image": {
+            "media_id": media_id
+        }
     }
-    headers = {'content-type': 'charset=utf8'}
-    #text=requests.post(url=url, json=json.loads(json.dumps(res, ensure_ascii=False), encoding='utf-8'))
-    text=requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
-    logger.info("post msg to wxmp, status={}".format(text)) 
+    #headers = {'content-type': 'charset=utf8'}
+    text=requests.post(url=url, data=body)
+    logger.info("post img msg to wxmp, status={}".format(text)) 
     return True
 
 def do_wechat_chat_completion(request_json, bot):
@@ -168,26 +172,24 @@ def do_wechat_chat_completion(request_json, bot):
         post_img_respons2wxmp(result, toUserName)
         return
 
-def Upload_Media_Img(image_io_bytes):
-    access_token = get_wxmp_token()
-    url = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=" + access_token +"&type=image"
-    res = requests.post(url, files=image_io_bytes)
-    res = json.loads(str(res.content, 'utf8'))
-    logger.info("upload image res={}", res)
-    media_id = res["media_id"]
-    
-    #返回素材ID
-    return media_id
-
-def img_upload(img_url):
+def img_upload(local_path):
     token = get_wxmp_token()
     url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s" % (token, "image")
-    files = {'media': requests.get(img_url).content}
+    files = {'media': open('{}'.format(local_path), 'rb')}
     res = requests.post(url, files=files)
-    logger.info("upload image res={}".format(res))
-    res = json.loads(res.content.decode())
-    logger.info("upload image content={}".format(res))
+    content = json.loads(res.content.decode())
+    logger.info("upload image, res={}content={}".format(res, content))
     return res['media_id']
+
+def download_image(img_url, local_path):
+    with open(local_path, "wb") as f:
+        f.write(requests.get(img_url).content)
+
+def delete_image(local_path):
+    if not local_path:
+        return
+    os.remove(local_path)
+
 
 if __name__ == '__main__':
     post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
