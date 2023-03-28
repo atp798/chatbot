@@ -129,14 +129,8 @@ class ChatGPTBot(Bot):
                 size="1024x1024"   #图片大小,可选有 256x256, 512x512, 1024x1024
             )
             image_url = response['data'][0]['url']
-            # 图片下载
-            pic_res = requests.get(image_url, stream=True)
-            image_storage = io.BytesIO()
-            for block in pic_res.iter_content(1024):
-                image_storage.write(block)
-            image_storage.seek(0)
             logger.info("[OPEN_AI] image_url={}".format(image_url))
-            return {"completion_images": 1, "content": image_storage}
+            return {"completion_images": 1, "content": image_url}
 
         except openai.error.RateLimitError as e:
             logger.warn(e)
