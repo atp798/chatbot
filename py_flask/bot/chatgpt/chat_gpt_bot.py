@@ -39,7 +39,7 @@ class ChatGPTBot(Bot):
                 self._session.clear_all_session()
                 return '所有人会话历史已清除'
 
-            session = self._session.build_session_query(query, session_id)
+            session = self._session.build_session_query(query, session_id, "text")
             if session is None:
                 return "请求已经达到最大次数，请明天再来..."
 

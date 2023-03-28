@@ -44,7 +44,6 @@ class Session(object):
 
         session = self._all_sessions.get(session_id, [])
         session_record = self._all_sessions.get(session_id + "_record", [])
-
         is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record)
         if is_limited: #没有限额了
             return None
@@ -54,6 +53,7 @@ class Session(object):
             system_item = {'role': 'system', 'content': system_prompt}
             session.append(system_item)
             self._all_sessions[session_id] = session
+            self._all_sessions[session_id + "_record"] = []
         user_item = {'role': 'user', 'content': query}
         session.append(user_item)
 

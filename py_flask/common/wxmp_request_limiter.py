@@ -57,6 +57,7 @@ class WxmpRequestLimiter:
         # 计算当天凌晨时间戳
         midnight = int((now + tz_secs) // 86400 * 86400 - tz_secs)
 
+        logger.info("midnight={}, textaccess={}".format(midnight, session))
         text_access_timestamp = [s for s in session if s.get("type") == "text" and s.get("timestamp", 0) > midnight]
         image_access_timestamp = [s for s in session if s.get("type") == "image" and s.get("timestamp", 0) > midnight]
 
