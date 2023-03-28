@@ -115,7 +115,7 @@ def post_img_respons2wxmp(image_url=None, touser=None):
 
     local_path = touser + '_' + str(int(time.time() * 1000)) + '.png'
     download_image(image_url, local_path)
-    media_id = img_upload(image_url)
+    media_id = img_upload(local_path)
     delete_image(local_path)
 
     url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token()
@@ -179,7 +179,7 @@ def img_upload(local_path):
     res = requests.post(url, files=files)
     content = json.loads(res.content.decode())
     logger.info("upload image, res={}content={}".format(res, content))
-    return res['media_id']
+    return content['media_id']
 
 def download_image(img_url, local_path):
     with open(local_path, "wb") as f:
