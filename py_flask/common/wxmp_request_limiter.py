@@ -7,10 +7,12 @@ import json
 
 class WxmpVipLimit:
     def __init__(self, text_limit=0, image_limit=0):
-        self.text_limit = text_limit
-        self.image_limit = image_limit
+        self.limit_dict = {
+            "TEXT": text_limit,
+            "IMAGE": image_limit
+            }
     def __str__(self):
-        return json.dumps({"text_limit": self.text_limit, "image_limit": self.image_limit})
+        return json.dumps(self.limit_dict)
 
 class WxmpRequestLimiter:
     def __init__(self, path="./common/wxmp_whitelist.json"):
@@ -47,7 +49,7 @@ class WxmpRequestLimiter:
     def get_vip_limit(self, openid):
         return self.vip_limit_dict.get(self.get_vip_level(openid))
     
-    def do_limit(self, openid, session):
+    def do_limit(self, openid, session, msgtype):
         #这个方法实现的比较挫，每次都遍历，但考虑到用户少，也没啥了
         # 设置时区
         tz_offset = 8  # 东八区
@@ -57,12 +59,11 @@ class WxmpRequestLimiter:
         # 计算当天凌晨时间戳
         midnight = int((now + tz_secs) // 86400 * 86400 - tz_secs)
 
-        logger.info("midnight={}, textaccess={}".format(midnight, session))
-        text_access_timestamp = [s for s in session if s.get("type") == "text" and s.get("timestamp", 0) > midnight]
-        image_access_timestamp = [s for s in session if s.get("type") == "image" and s.get("timestamp", 0) > midnight]
+        logger.info("midnight={}, access={}".format(midnight, session))
+        access_timestamp = [s for s in session if s.get("type") == msgtype and s.get("timestamp", 0) > midnight]
 
         limit_conf = self.get_vip_limit(openid)
-        return len(text_access_timestamp) < limit_conf.text_limit and len(image_access_timestamp) < limit_conf.image_limit
+        return len(access_timestamp) < limit_conf.limit_dict[msgtype]
 
 if __name__ == "__main__":
     wxmp_token = WxmpVipTokenBucket()

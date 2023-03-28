@@ -20,7 +20,7 @@ class Session(object):
         self._character_desc = config_parser.character_desc
         self.wxmp_request_limiter = WxmpRequestLimiter()
 
-    def build_session_query(self, query, session_id, msgtype="text"):
+    def build_session_query(self, query, session_id, msgtype="TEXT"):
         '''
         build query with conversation history
         e.g.  [
@@ -44,7 +44,7 @@ class Session(object):
 
         session = self._all_sessions.get(session_id, [])
         session_record = self._all_sessions.get(session_id + "_record", [])
-        is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record)
+        is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record, msgtype)
         if is_limited: #没有限额了
             return None
 

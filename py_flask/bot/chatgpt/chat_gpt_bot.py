@@ -29,6 +29,7 @@ class ChatGPTBot(Bot):
     def reply(self, query, context=None):
         # acquire reply content
         if not context.get('type') or context.get('type') == 'TEXT':
+            msgtype = context.get('type') 
             logger.info("[OPEN_AI] begin process query={}".format(query))
             session_id = context.get('session_id')
 
@@ -39,9 +40,11 @@ class ChatGPTBot(Bot):
                 self._session.clear_all_session()
                 return '所有人会话历史已清除'
 
-            session = self._session.build_session_query(query, session_id, "text")
+            session = self._session.build_session_query(query, session_id, msgtype)
             if session is None:
-                return "请求已经达到最大次数，请明天再来..."
+                prefix = "文字对话" if msgtype == "TEXT" else ""
+                prefix = "画图对话" if msgtype == "IMAGE" else ""
+                return prefix+"请求已经达到最大次数，请明天再来..."
 
             logger.debug("[OPEN_AI] session query={}".format(session))
 
