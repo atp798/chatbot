@@ -57,8 +57,8 @@ class WxmpRequestLimiter:
         # 计算当天凌晨时间戳
         midnight = int((now + tz_secs) // 86400 * 86400 - tz_secs)
 
-        text_access_timestamp = [s for s in session if s.get("role", "") == "user" and s.get("type") == "text" and s.get("timestamp", 0) > midnight]
-        image_access_timestamp = [s for s in session if s.get("role", "") == "user" and s.get("type") == "image" and s.get("timestamp", 0) > midnight]
+        text_access_timestamp = [s for s in session if s.get("type") == "text" and s.get("timestamp", 0) > midnight]
+        image_access_timestamp = [s for s in session if s.get("type") == "image" and s.get("timestamp", 0) > midnight]
 
         limit_conf = self.get_vip_limit(openid)
         return len(text_access_timestamp) < limit_conf.text_limit and len(image_access_timestamp) < limit_conf.image_limit

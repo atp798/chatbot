@@ -25,7 +25,7 @@ class Session(object):
         build query with conversation history
         e.g.  [
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Who won the world series in 2020?", "timestamp": 1679971605, "type": "text/image"},
+            {"role": "user", "content": "Who won the world series in 2020?", "},
             {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
             {"role": "user", "content": "Where was it played?"}
         ]
@@ -33,8 +33,19 @@ class Session(object):
         :param session_id: session id
         :return: query content with conversaction
         '''
+
+        '''
+        session_record:
+        [
+            {"timestamp": 1679971605, "type": "text/image},
+            {"timestamp": 1679971605, "type": "text/image}
+        ]
+        '''
+
         session = self._all_sessions.get(session_id, [])
-        is_limited = self.wxmp_request_limiter.do_limit(session_id, session)
+        session_record = self._all_sessions.get(session_id + "_record", [])
+
+        is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record)
         if is_limited: #没有限额了
             return None
 
@@ -43,8 +54,12 @@ class Session(object):
             system_item = {'role': 'system', 'content': system_prompt}
             session.append(system_item)
             self._all_sessions[session_id] = session
-        user_item = {'role': 'user', 'content': query, "timestamp": int(time.time()), "type": msgtype}
+        user_item = {'role': 'user', 'content': query}
         session.append(user_item)
+
+        ss_record = {"timestamp": int(time.time()), "type": msgtype}
+        session_record.append(ss_record)
+
         return session
 
     def save_session(self, answer, session_id, total_tokens):
