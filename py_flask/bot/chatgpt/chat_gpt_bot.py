@@ -4,6 +4,7 @@ from bot.bot import Bot
 from common.log import logger
 from common.token_bucket import TokenBucket
 from common.expired_dict import ExpiredDict
+from common.session import Session
 import openai
 import time
 
@@ -39,11 +40,10 @@ class ChatGPTBot(Bot):
                 return '所有人会话历史已清除'
 
             session = self._session.build_session_query(query, session_id)
-            logger.debug("[OPEN_AI] session query={}".format(session))
+            if session is None:
+                return "请求已经达到最大次数，请明天再来..."
 
-            # if context.get('stream'):
-            #     # reply in stream
-            #     return self.reply_text_stream(query, new_query, session_id)
+            logger.debug("[OPEN_AI] session query={}".format(session))
 
             btime = time.time()
             reply_content = self.reply_text(session, session_id, 0)
@@ -67,8 +67,6 @@ class ChatGPTBot(Bot):
         :return: {}
         '''
         try:
-            if self._enable_rate_limit and not self._tb4chatgpt.get_token():
-                return {"completion_tokens": 0, "content": "提问太快啦，请休息一下再问我吧"}
             btime = time.time()
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",  # 对话模型的名称
@@ -112,66 +110,4 @@ class ChatGPTBot(Bot):
             return {"completion_tokens": 0, "content": "请再问我一次吧"}
 
 
-class Session(object):
 
-    def __init__(self, config_parser):
-        logger.info("Session init...")
-        self._all_sessions = dict()
-        if config_parser.expires_in_seconds > 0:
-            self._all_sessions = ExpiredDict(config_parser.expires_in_seconds)
-        self._max_tokens = config_parser.conversation_max_tokens
-        if self._max_tokens <= 0:
-            self._max_tokens = 1024
-        self._character_desc = config_parser.character_desc
-
-    def build_session_query(self, query, session_id):
-        '''
-        build query with conversation history
-        e.g.  [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Who won the world series in 2020?"},
-            {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-            {"role": "user", "content": "Where was it played?"}
-        ]
-        :param query: query content
-        :param session_id: session id
-        :return: query content with conversaction
-        '''
-        session = self._all_sessions.get(session_id, [])
-        if len(session) == 0:
-            system_prompt = self._character_desc
-            system_item = {'role': 'system', 'content': system_prompt}
-            session.append(system_item)
-            self._all_sessions[session_id] = session
-        user_item = {'role': 'user', 'content': query}
-        session.append(user_item)
-        return session
-
-    def save_session(self, answer, session_id, total_tokens):
-        session = self._all_sessions.get(session_id)
-        if session:
-            # append conversation
-            gpt_item = {'role': 'assistant', 'content': answer}
-            session.append(gpt_item)
-
-        # discard exceed limit conversation
-        self.discard_exceed_conversation(session, self._max_tokens,
-                                         total_tokens)
-
-    def discard_exceed_conversation(self, session, max_tokens, total_tokens):
-        dec_tokens = int(total_tokens)
-        logger.debug("prompt tokens used={},max_tokens={}".format(dec_tokens,max_tokens))
-        while dec_tokens > max_tokens:
-            # pop first conversation
-            if len(session) > 3:
-                session.pop(1)
-                session.pop(1)
-            else:
-                break
-            dec_tokens = dec_tokens - max_tokens
-
-    def clear_session(self, session_id):
-        self._all_sessions[session_id] = []
-
-    def clear_all_session(self):
-        self._all_sessions.clear()
