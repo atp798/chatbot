@@ -113,10 +113,14 @@ def post_img_respons2wxmp(image_url=None, touser=None):
         time.sleep(1)
         retry -= 1
 
-    local_path = touser + '_' + str(int(time.time() * 1000)) + '.png'
-    download_image(image_url, local_path)
-    media_id = img_upload(local_path)
-    delete_image(local_path)
+    try:
+        local_path = touser + '_' + str(int(time.time() * 1000)) + '.png'
+        download_image(image_url, local_path)
+        media_id = img_upload(local_path)
+        delete_image(local_path)
+    except Exception as e:
+        logger.info('error processing image:'.format(e))
+        return False
 
     url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token()
     body = {
