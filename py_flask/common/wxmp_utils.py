@@ -182,10 +182,11 @@ def Upload_Media_Img(image_io_bytes):
 def img_upload(img_url):
     token = get_wxmp_token
     url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s" % (token, "image")
-    files = {'media': requests.get(img_url)}
+    files = {'media': requests.get(img_url).content}
     res = requests.post(url, files=files)
-    res = json.loads(res.content.decode())
     logger.info("upload image res={}", res)
+    res = json.loads(res.content.decode())
+    logger.info("upload image content={}", res)
     return res['media_id']
 
 if __name__ == '__main__':
