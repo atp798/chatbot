@@ -111,6 +111,7 @@ def post_img_respons2wxmp(res=None, touser=None):
     while(get_wxmp_token() is None and retry > 0):
         time.sleep(1)
         retry -= 1
+    media_id = Upload_Media_Img(res)
 
     url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token() + "&charset=utf-8";
     body={
@@ -167,19 +168,17 @@ def do_wechat_chat_completion(request_json, bot):
         post_img_respons2wxmp(result, toUserName)
         return
 
-def Upload_Media_Img():
-    access_token = "67_nTGLtyNvbwCt_I6kCsdXUehcQQXnmoY9vUVSlbL0FJCbQzQEPQoVE1obczatyKjm-Q296XcVe3ipbqTWEELOZFXrqltj0ceeTxuP9B07Fhh3gRhV2f4C8rAUFlEPEIaAAAJYC"
+def Upload_Media_Img(image_content):
+    access_token = get_wxmp_token()
     url = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=" + access_token +"&type=image"
     # 上传文件
     params = {"access_token": access_token,
               "type":"image"}
     #test.jpg为本地要上传的素材
-    with open('test.jpg', 'rb') as fp:
-        files = {'media': fp}
-        res = requests.post(url, files=files)
-        res = json.loads(str(res.content, 'utf8'))
-        print(res)
-        media_id = res["media_id"]
+    res = requests.post(url, files=image_content)
+    res = json.loads(str(res.content, 'utf8'))
+    logger.info("upload image res={}", res)
+    media_id = res["media_id"]
     
     #返回素材ID
     return media_id
