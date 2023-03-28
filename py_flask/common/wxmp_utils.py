@@ -144,6 +144,7 @@ def do_wechat_chat_completion(request_json, bot):
     context = dict()
     context['session_id'] = session_id
     context['type'] = request_json.get("MsgType", "TEXT").upper()
+    context['type'] = "IMAGE" if query.startswith("画") else context['type']
 
     response = None
     result = ""
