@@ -101,8 +101,8 @@ def post_respons2wxmp(res=None, touser=None):
     }
     headers = {'content-type': 'charset=utf8'}
     #text=requests.post(url=url, json=json.loads(json.dumps(res, ensure_ascii=False), encoding='utf-8'))
-    text=requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
-    logger.info("post msg to wxmp, status={}".format(text)) 
+    res = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
+    logger.info("post msg to wxmp, status={}".format(res)) 
     return True
 
 def post_img_respons2wxmp(image_url=None, touser=None):
@@ -127,8 +127,8 @@ def post_img_respons2wxmp(image_url=None, touser=None):
         }
     }
     #headers = {'content-type': 'charset=utf8'}
-    text=requests.post(url=url, data=body)
-    logger.info("post img msg to wxmp, status={}".format(text)) 
+    res = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
+    logger.info("post img msg to wxmp, status={}".format(res)) 
     return True
 
 def do_wechat_chat_completion(request_json, bot):
