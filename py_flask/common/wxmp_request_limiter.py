@@ -59,11 +59,11 @@ class WxmpRequestLimiter:
         # 计算当天凌晨时间戳
         midnight = int((now + tz_secs) // 86400 * 86400 - tz_secs)
 
-        logger.info("midnight={}, access={}".format(midnight, session))
+        logger.info("midnight={}, access={}, msgtype={}".format(midnight, session, msgtype))
         access_timestamp = [s for s in session if s.get("type") == msgtype and s.get("timestamp", 0) > midnight]
 
         limit_conf = self.get_vip_limit(openid)
-        return len(access_timestamp) < limit_conf.limit_dict[msgtype]
+        return len(access_timestamp) > limit_conf.limit_dict[msgtype]
 
 if __name__ == "__main__":
     wxmp_token = WxmpVipTokenBucket()

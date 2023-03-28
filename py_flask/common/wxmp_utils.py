@@ -116,7 +116,7 @@ def do_wechat_chat_completion(request_json, bot):
 
     context = dict()
     context['session_id'] = session_id
-    context['type'] = request_json.get("MsgType", "TEXT")
+    context['type'] = request_json.get("MsgType", "TEXT").upper()
 
     response = None
     result = ""
