@@ -180,7 +180,7 @@ def Upload_Media_Img(image_io_bytes):
     return media_id
 
 def img_upload(img_url):
-    token = get_wxmp_token
+    token = get_wxmp_token()
     url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s" % (token, "image")
     files = {'media': requests.get(img_url).content}
     res = requests.post(url, files=files)
