@@ -116,6 +116,7 @@ def do_wechat_chat_completion(request_json, bot):
 
     context = dict()
     context['session_id'] = session_id
+    context['type'] = request_json.get("MsgType", "TEXT")
 
     response = None
     result = ""
@@ -134,6 +135,8 @@ def do_wechat_chat_completion(request_json, bot):
     logger.info("end peocess request, ans:{}".format(result))
     toUserName = request_json["FromUserName"]
     fromUserName = request_json["ToUserName"] 
+    if not result:
+        result = "发生未知错误，系统正在修复中，请稍后重试..."
 
     post_respons2wxmp(result, toUserName)
 

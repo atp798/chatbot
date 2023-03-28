@@ -28,38 +28,42 @@ class ChatGPTBot(Bot):
 
     def reply(self, query, context=None):
         # acquire reply content
-        if not context.get('type') or context.get('type') == 'TEXT':
-            msgtype = context.get('type') 
-            logger.info("[OPEN_AI] begin process query={}".format(query))
-            session_id = context.get('session_id')
+        '''
+            type and session_id is important in context!!!
+        '''
+        msgtype = context.get('type') 
+        if msgtype is None:
+            return ""
+        logger.info("[OPEN_AI] begin process query={}".format(query))
+        session_id = context.get('session_id')
 
-            if query == self._clear_memory_commands:
-                self._session.clear_session(session_id)
-                return '会话已清除'
-            if query == self._clear_all_memory_commands:
-                self._session.clear_all_session()
-                return '所有人会话历史已清除'
+        if query == self._clear_memory_commands:
+            self._session.clear_session(session_id)
+            return '会话已清除'
+        if query == self._clear_all_memory_commands:
+            self._session.clear_all_session()
+            return '所有人会话历史已清除'
 
-            session = self._session.build_session_query(query, session_id, msgtype)
-            if session is None:
-                prefix = "文字对话" if msgtype == "TEXT" else ""
-                prefix = "画图对话" if msgtype == "IMAGE" else ""
-                return prefix+"请求已经达到最大次数，请明天再来..."
+        session = self._session.build_session_query(query, session_id, msgtype)
+        if session is None:
+            prefix = "文字对话" if msgtype == "TEXT" else ""
+            prefix = "画图对话" if msgtype == "IMAGE" else ""
+            return prefix+"请求已经达到最大次数，请明天再来..."
 
-            logger.debug("[OPEN_AI] session query={}".format(session))
+        logger.debug("[OPEN_AI] session query={}".format(session))
 
-            btime = time.time()
-            reply_content = self.reply_text(session, session_id, 0)
-            logger.debug(
-                "[OPEN_AI] new_query={}, session_id={}, reply_cont={}".format(
-                    session, session_id, reply_content["content"]))
-            if reply_content["completion_tokens"] > 0:
-                self._session.save_session(reply_content["content"],
-                                           session_id,
-                                           reply_content["total_tokens"])
-            tdiff = time.time() - btime
-            logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
-            return reply_content["content"]
+        btime = time.time()
+        reply_content = self.reply_text(session, session_id, 0)
+        logger.debug(
+            "[OPEN_AI] new_query={}, session_id={}, reply_cont={}".format(
+                session, session_id, reply_content["content"]))
+        if reply_content["completion_tokens"] > 0:
+            self._session.save_session(reply_content["content"],
+                                        session_id,
+                                        reply_content["total_tokens"])
+        tdiff = time.time() - btime
+        logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
+        return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0) -> dict:
         '''
