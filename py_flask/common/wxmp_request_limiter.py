@@ -36,9 +36,9 @@ class WxmpRequestLimiter:
         ##vip3: 可以画图，1024*1024高清，以“画xx”开头提问即可
         ##vip_forevel: 内部测试用，无限制
         self.vip_limit_dict = {
-            "vip_level_0": WxmpVipLimit(100, 5),
-            "vip_level_1": WxmpVipLimit(100, 5),
-            "vip_level_2": WxmpVipLimit(1000, 5),
+            "vip_level_0": WxmpVipLimit(100, 50),
+            "vip_level_1": WxmpVipLimit(100, 50),
+            "vip_level_2": WxmpVipLimit(1000, 50),
             "vip_level_3": WxmpVipLimit(1000, 1000),
             "vip_level_forever": WxmpVipLimit(1000, 1000),
         }
