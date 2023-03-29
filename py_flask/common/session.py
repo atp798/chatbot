@@ -110,4 +110,3 @@ class Session(object):
         if os.path.exists(self.file_path):
             with open(self.file_path, 'rb') as f:
                 self._all_sessions = pickle.load(f)
-                print("ttttttttttttt all_session=", self._all_sessions)
