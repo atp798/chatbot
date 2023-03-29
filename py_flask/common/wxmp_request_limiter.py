@@ -42,7 +42,7 @@ class WxmpRequestLimiter:
             self.confdict = self.get_whitelist_from_github()
             #把字典倒过来
             tmp_dict = {}
-            for key, value in confdict.items():
+            for key, value in self.confdict.items():
                 for v in value:
                     tmp_dict[v] = key
             self.openid_dict = tmp_dict
