@@ -6,18 +6,15 @@ from common.expired_dict import ExpiredDict
 from common.wxmp_request_limiter import WxmpRequestLimiter
 import openai
 import time
-import shelve
+import pickle
 import threading
 import os
 
 class Session(object):
     def __init__(self, config_parser):
         logger.info("Session init...")
-        path = './session.data'
-        if not os.path.exists(path):
-            with open(filename, 'a') as f:
-                pass
-        self._all_sessions = shelve.open(path)
+        self.path = './session.data'
+        self._all_sessions = {}
 
         #if config_parser.expires_in_seconds > 0:
             #self._all_sessions = ExpiredDict(config_parser.expires_in_seconds)
@@ -26,6 +23,8 @@ class Session(object):
             self._max_tokens = 1024
         self._character_desc = config_parser.character_desc
         self.wxmp_request_limiter = WxmpRequestLimiter()
+
+        self.load_sessions()
         threading.Thread(target=self.dump_sessions, daemon=True).start()
 
     def build_session_query(self, query, session_id, msgtype="TEXT"):
@@ -103,5 +102,12 @@ class Session(object):
 
     def dump_sessions(self):
         while True:
-            self._all_sessions.sync()
+            with open(self.file_path, 'wb') as f:
+                pickle.dump(self._all_sessions, f)
             time.sleep(20)
+
+    def load_sessions(self):
+        if os.path.exists(self.file_path):
+            with open(self.file_path, 'rb') as f:
+                self._all_sessions = pickle.load(f)
+                print("ttttttttttttt all_session=", self._all_sessions)
