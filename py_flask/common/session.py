@@ -8,11 +8,16 @@ import openai
 import time
 import shelve
 import threading
+import os
 
 class Session(object):
     def __init__(self, config_parser):
         logger.info("Session init...")
-        self._all_sessions = shelve.open('./session.data')
+        path = './session.data'
+        if not os.path.exists(path):
+            with open(filename, 'a') as f:
+                pass
+        self._all_sessions = shelve.open(path)
 
         #if config_parser.expires_in_seconds > 0:
             #self._all_sessions = ExpiredDict(config_parser.expires_in_seconds)
