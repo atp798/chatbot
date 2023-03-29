@@ -10,7 +10,8 @@ import traceback
 import base64
 from common.wxmp_utils import get_wxmp_token
 from enum import Enum
-
+import threading
+from common.singleton import SingletonC
 
 class VIP_LEVEL(Enum):
    L0 = 105
@@ -29,11 +30,11 @@ class WxmpVipLimit:
     def __str__(self):
         return json.dumps(self.limit_dict)
 
+@SingletonC
 class WxmpRequestLimiter:
-    def __init__(self, path="./common/wxmp_whitelist.json"):
-        self.last_update_timestamp = None
-        self.confdict = {}
+    def __init__(self):
         self.openid_dict = {}
+        #self.conf_dict = {}
         ##vip0: 普通vip, 每天10条, 默认等级
         ##vip1: 普通vip, 每天10条, 默认等级, 留一个做扩展
         ##vip2: 无限量访问
@@ -46,6 +47,8 @@ class WxmpRequestLimiter:
             VIP_LEVEL.L3.value: WxmpVipLimit(1000, 1000),
             VIP_LEVEL.NOLIMIT.value: WxmpVipLimit(1000, 1000),
         }
+
+        threading.Thread(target=self.update_user_vip_level_asyn).start()
         return
 
     def get_vip_limit_by_level(self, vip_level):
@@ -68,8 +71,16 @@ class WxmpRequestLimiter:
             return tags
         except Exception as e:
             logger.info("get user tags info error, set to nolimit mode...")
-            return VIP_LEVEL.NOLIMIT.value
+            return None
 
+    def update_user_vip_level_asyn(self):
+        while True:
+            for openid, vlevel in self.openid_dict.items():
+                vip_level = self.get_user_info(openid)
+                if vip_level:
+                    self.conf_dict[openid] = vip_level
+            time.sleep(10)
+            
     
     def do_limit(self, openid, session, msgtype):
         #这个方法实现的比较挫，每次都遍历，但考虑到用户少，也没啥了
@@ -85,7 +96,12 @@ class WxmpRequestLimiter:
         access_timestamp = [s for s in session if s.get("type") == msgtype and s.get("timestamp", 0) > midnight]
 
         btime = time.time()
-        user_tag = self.get_user_info(openid)
+        user_tag = self.openid_dict.get(openid, None)
+        if user_tag is None:
+            logger.info("get no user tags info, set to nolimit mode...")
+            user_tag = VIP_LEVEL.NOLIMIT.value
+            self.openid_dict[openid] = None
+
         limit_conf = self.get_vip_limit_by_level(user_tag)
         logger.info("timediff={} usertag={} limitconf={}", time.time()-btime, user_tag, limit_conf)
         return len(access_timestamp) > limit_conf.limit_dict[msgtype]
@@ -93,10 +109,10 @@ class WxmpRequestLimiter:
     #同步更新，粗暴实现，可以考虑异步
     def update_whitelist(self):
         if self.last_update_timestamp is None or time.time() - self.last_update_timestamp > 600000000000:
-            self.confdict = self.get_whitelist_from_github()
+            self.conf_dict = self.get_whitelist_from_github()
             #把字典倒过来
             tmp_dict = {}
-            for key, value in self.confdict.items():
+            for key, value in self.conf_dict.items():
                 for v in value:
                     tmp_dict[v] = key
             self.openid_dict = tmp_dict
