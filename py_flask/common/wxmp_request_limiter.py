@@ -5,6 +5,7 @@ from common.log import logger
 import json
 import requests
 import traceback
+import base64
 
 
 class WxmpVipLimit:
