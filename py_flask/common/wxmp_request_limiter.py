@@ -58,7 +58,7 @@ class WxmpRequestLimiter:
             decoded_content = base64.b64decode(content).decode('utf-8')
             json_obj = json.loads(decoded_content)
             logger.info("update remote whitelist succ!!")
-            logger.info("".format(json_obj))
+            logger.info("{}".format(json_obj))
             return json_obj
         except Exception as e:
             logger.info("update remote whitelist error!!")
