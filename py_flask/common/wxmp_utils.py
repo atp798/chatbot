@@ -10,6 +10,9 @@ from common.singleton import SingletonC
 from config import get_config
 import requests
 from flask import jsonify
+import traceback
+from urllib import parse
+
 
 @SingletonC
 class WxmpToken(object):
@@ -29,7 +32,7 @@ class WxmpToken(object):
             #初始化
             if self.timestamp is None or self.token is None:
                 oldtoken = self.token
-                self.token = self._get_wxCode_token()
+                self.token = self._post_get_wxmp_token()
                 self.timestamp = time.time()
                 logger.info("get newtoken={} oldtoken={} time={}".format(self.token, oldtoken, self.timestamp))
                 time.sleep(1.0/100)
@@ -39,7 +42,7 @@ class WxmpToken(object):
                 timediff = nowtime - self.timestamp
                 #过期了
                 if (timediff > self.timeout):
-                    tmp_token = self._get_wxCode_token() 
+                    tmp_token = self._post_get_wxmp_token() 
                     #拿到相同的token了
                     if tmp_token == self.token:
                         logger.info("get same token, do nothing")
@@ -51,28 +54,25 @@ class WxmpToken(object):
             #1s检查一次
             time.sleep(1)
 
-    def _get_wxCode_token(self):
+    def _post_get_wxmp_token(self):
         try:
             appid = get_config().appid
             secret = get_config().secret
-            textmod = {"grant_type": "client_credential",
+            body = {
+                "grant_type": "client_credential",
                 "appid": appid,
                 "secret": secret
             }
-            textmod = parse.urlencode(textmod)
-            header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'}
             url = 'https://api.weixin.qq.com/cgi-bin/token'
-            req = request.Request(url='%s%s%s' % (url, '?', textmod), headers=header_dict)
-            res = request.urlopen(req)
-            res = res.read().decode(encoding='utf-8')
-            res = json.loads(res)
-            access_token = res["access_token"]
-            print('res:', res)
-            print('access_token:', access_token)
-            return access_token
+            body = parse.urlencode(body)
+            res = requests.post(url=url, data=body)
+
+            logger.info("gettoken, res={}content={}".format(res, ""))
+            content = json.loads(res.content.decode())
+            logger.info("gettoken, res={}content={}".format(res, content))
+            return content['access_token']
         except Exception as e:
-            print('error:', e)
-            return None
+            print (traceback.print_exc())
         
     def close(self):
         self.is_running = False
@@ -219,5 +219,6 @@ def get_welcome_words():
 
 
 if __name__ == '__main__':
-    #post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
-    print (get_welcome_words())
+    wxToken = WxmpToken()
+    post_respons2wxmp(get_welcome_words(), "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
+    #print (get_welcome_words())
