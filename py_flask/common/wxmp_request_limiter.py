@@ -32,6 +32,8 @@ class WxmpRequestLimiter:
             "vip_level_3": WxmpVipLimit(1000, 1000),
             "vip_level_forever": WxmpVipLimit(1000, 1000),
         }
+
+        self.update_whitelist()
         return
 
     #同步更新，粗暴实现，可以考虑异步
@@ -43,7 +45,8 @@ class WxmpRequestLimiter:
             for key, value in confdict.items():
                 for v in value:
                     tmp_dict[v] = key
-            self.openid_dict = tmp_dict 
+            self.openid_dict = tmp_dict
+            self.last_update_timestamp = time.time()
 
     def get_whitelist_from_github(self, url="https://api.github.com/repos/atp798/chatbot/contents/py_flask/common/wxmp_whitelist.json"):
         try:
