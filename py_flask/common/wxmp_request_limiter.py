@@ -78,7 +78,7 @@ class WxmpRequestLimiter:
             for openid, vlevel in self.openid_dict.items():
                 vip_level = self.get_user_info(openid)
                 if vip_level:
-                    self.conf_dict[openid] = vip_level
+                    self.openid_dict[openid] = vip_level
             time.sleep(10)
             
     
@@ -103,7 +103,7 @@ class WxmpRequestLimiter:
             self.openid_dict[openid] = None
 
         limit_conf = self.get_vip_limit_by_level(user_tag)
-        logger.info("timediff={} usertag={} limitconf={}", time.time()-btime, user_tag, limit_conf)
+        logger.info("timediff={} usertag={} limitconf={}".format(time.time()-btime, user_tag, limit_conf))
         return len(access_timestamp) > limit_conf.limit_dict[msgtype]
 
     #同步更新，粗暴实现，可以考虑异步
