@@ -140,7 +140,7 @@ def do_wechat_chat_completion(request_json, bot):
     try:
         #关注
         if request_json["MsgType"] == "event" and request_json["Event"] == "subscribe":
-            post_respons2wxmp(get_welcome_words, request_json["FromUserName"])
+            post_respons2wxmp(get_welcome_words(), request_json["FromUserName"])
             logger.info("handle subscribe event, return welcome words")
             return
 
