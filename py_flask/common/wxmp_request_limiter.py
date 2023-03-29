@@ -75,7 +75,8 @@ class WxmpRequestLimiter:
 
     def update_user_vip_level_asyn(self):
         while True:
-            for openid, vlevel in self.openid_dict.items():
+            openids = [key for key in self.openid_dict]
+            for openid in openids:
                 vip_level = self.get_user_info(openid)
                 if vip_level:
                     self.openid_dict[openid] = vip_level
