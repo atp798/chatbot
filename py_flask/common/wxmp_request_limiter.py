@@ -79,6 +79,7 @@ class WxmpRequestLimiter:
                 vip_level = self.get_user_info(openid)
                 if vip_level:
                     self.openid_dict[openid] = vip_level
+                time.sleep(1/100)
             time.sleep(10)
             
     

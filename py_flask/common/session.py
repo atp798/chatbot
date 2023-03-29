@@ -1,5 +1,4 @@
 # encoding:utf-8
-
 from bot.bot import Bot
 from common.log import logger
 from common.token_bucket import TokenBucket
@@ -7,18 +6,22 @@ from common.expired_dict import ExpiredDict
 from common.wxmp_request_limiter import WxmpRequestLimiter
 import openai
 import time
+import shelve
+import threading
 
 class Session(object):
     def __init__(self, config_parser):
         logger.info("Session init...")
-        self._all_sessions = dict()
-        if config_parser.expires_in_seconds > 0:
-            self._all_sessions = ExpiredDict(config_parser.expires_in_seconds)
+        self._all_sessions = shelve.open('./session.data')
+
+        #if config_parser.expires_in_seconds > 0:
+            #self._all_sessions = ExpiredDict(config_parser.expires_in_seconds)
         self._max_tokens = config_parser.conversation_max_tokens
         if self._max_tokens <= 0:
             self._max_tokens = 1024
         self._character_desc = config_parser.character_desc
         self.wxmp_request_limiter = WxmpRequestLimiter()
+        threading.Thread(target=self.dump_sessions, daemon=True).start()
 
     def build_session_query(self, query, session_id, msgtype="TEXT"):
         '''
@@ -70,8 +73,7 @@ class Session(object):
             session.append(gpt_item)
 
         # discard exceed limit conversation
-        self.discard_exceed_conversation(session, self._max_tokens,
-                                         total_tokens)
+        self.discard_exceed_conversation(session, self._max_tokens, total_tokens)
 
     def discard_exceed_conversation(self, session, max_tokens, total_tokens):
         dec_tokens = int(total_tokens)
@@ -90,3 +92,11 @@ class Session(object):
 
     def clear_all_session(self):
         self._all_sessions.clear()
+
+    def close(self):
+        self._all_sessions.close()
+
+    def dump_sessions(self):
+        while True:
+            self._all_sessions.sync()
+            time.sleep(20)
