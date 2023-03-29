@@ -102,11 +102,11 @@ class Session(object):
 
     def dump_sessions(self):
         while True:
-            with open(self.file_path, 'wb') as f:
+            with open(self.path, 'wb') as f:
                 pickle.dump(self._all_sessions, f)
             time.sleep(20)
 
     def load_sessions(self):
-        if os.path.exists(self.file_path):
-            with open(self.file_path, 'rb') as f:
+        if os.path.exists(self.path):
+            with open(self.path, 'rb') as f:
                 self._all_sessions = pickle.load(f)
