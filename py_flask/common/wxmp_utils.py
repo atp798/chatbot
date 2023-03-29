@@ -4,14 +4,12 @@ import threading
 import os
 import sys
 sys.path.append(os.getcwd())
-from urllib import parse, request
 from common.log import logger
 from common.singleton import SingletonC
 from config import get_config
 import requests
 from flask import jsonify
 import traceback
-from urllib import parse
 
 
 @SingletonC

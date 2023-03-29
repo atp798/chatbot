@@ -84,8 +84,10 @@ class WxmpRequestLimiter:
         logger.info("midnight={}, access={}, msgtype={}".format(midnight, session, msgtype))
         access_timestamp = [s for s in session if s.get("type") == msgtype and s.get("timestamp", 0) > midnight]
 
+        btime = time.time()
         user_tag = self.get_user_info(openid)
         limit_conf = self.get_vip_limit_by_level(user_tag)
+        logger.info("timediff={} usertag={} limitconf={}", time.time()-btime, user_tag, limit_conf)
         return len(access_timestamp) > limit_conf.limit_dict[msgtype]
 
     #同步更新，粗暴实现，可以考虑异步

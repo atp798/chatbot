@@ -9,15 +9,18 @@ def post2test_serv():
         'FromUserName': 'oiJo_5lGFN1xwiQtvFxT2W_7N6v8', 
         'CreateTime': '1679918602', 
         'MsgType': 'text', 
-        'Content': '4444',
+        'Content': '写一首诗',
         'MsgId': '24050651727617347'
     }
 
-    #xml = dicttoxml(body, custom_root='xml', attr_type=False)
-    #print("post xml= ", xml)
-    #text = requests.post(url=url, data=xml)
+    xml = dicttoxml(body, custom_root='xml', attr_type=False)
+    print("post xml= ", xml)
+    text = requests.post(url=url, data=xml)
 
-    text = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
+    #text = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
     print("post res= ", text)
     return
 
+
+if __name__ == '__main__':
+    post2test_serv()
