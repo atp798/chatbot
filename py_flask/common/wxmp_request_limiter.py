@@ -4,6 +4,7 @@ import sys
 from common.log import logger
 import json
 import requests
+import traceback
 
 
 class WxmpVipLimit:
@@ -60,6 +61,7 @@ class WxmpRequestLimiter:
             return json_obj
         except Exception as e:
             logger.info("update remote whitelist error!!")
+            traceback.print_exc()
             return None 
 
     def get_vip_level(self, openid):

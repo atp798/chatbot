@@ -3,7 +3,7 @@ import json
 import base64
 
 
-def get_whitelist_from_github(url="https://api.github.com/repos/atp798/chatbot/contents/py_flask/common/wxmp_whitelist.json")
+def get_whitelist_from_github(url="https://api.github.com/repos/atp798/chatbot/contents/py_flask/common/wxmp_whitelist.json"):
     try:
         response = requests.get(url)
         json_data = json.loads(response.content)
@@ -13,3 +13,5 @@ def get_whitelist_from_github(url="https://api.github.com/repos/atp798/chatbot/c
         return json_obj
     except Exception as e:
         return None
+
+print(get_whitelist_from_github())
