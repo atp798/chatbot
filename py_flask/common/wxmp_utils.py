@@ -82,7 +82,6 @@ wxToken = WxmpToken()
 def get_wxmp_token():
     return wxToken.get_token()
 
-
 def post_respons2wxmp(res=None, touser=None):
     if not(res and touser):
         return False
@@ -114,7 +113,7 @@ def post_img_respons2wxmp(image_url=None, touser=None):
         retry -= 1
 
     try:
-        local_path = touser + '_' + str(int(time.time() * 1000)) + '.png'
+        local_path = '/var/tmp/' + touser + '_' + str(int(time.time() * 1000)) + '.png'
         download_image(image_url, local_path)
         media_id = img_upload(local_path)
         delete_image(local_path)
@@ -139,9 +138,11 @@ def do_wechat_chat_completion(request_json, bot):
     #parameter constant
     logger.info("begin process request_json={}".format(request_json))
 
-    if request_json["MsgType"] == "event":
-        logger.info("handle subscribe event, return")
-        return ""
+    if request_json["MsgType"] == "event" and request_json["Event"] == "subscribe":
+        post_respons2wxmp(get_welcome_words, request_json["FromUserName"])
+        logger.info("handle subscribe event, return welcome words")
+        return
+
     session_id = request_json["FromUserName"]
     query = request_json["Content"]
 
@@ -151,30 +152,28 @@ def do_wechat_chat_completion(request_json, bot):
     context['type'] = "IMAGE" if query.startswith("画") else context['type']
 
     response = None
-    result = ""
     retry = 3
     while retry > 0:
         retry -= 1
         try:
             response = bot.reply(query, context)
             # 从响应中获取结果
-            result = response
         except Exception as error:
             logger.info("get openai err=".format(error))
             continue
-        if result:
+        if response:
             break
-    logger.info("end peocess request, ans:{}".format(result))
+    logger.info("end peocess request, ans:{}".format(response))
     toUserName = request_json["FromUserName"]
-    fromUserName = request_json["ToUserName"] 
-    if not result:
-        result = "发生未知错误，系统正在修复中，请稍后重试..."
+    #fromUserName = request_json["ToUserName"] 
+    if not response:
+        response = "发生未知错误，系统正在修复中，请稍后重试..."
 
     if context['type'] == "TEXT":
-        post_respons2wxmp(result, toUserName)
+        post_respons2wxmp(response, toUserName)
         return
     if context['type'] == "IMAGE":
-        post_img_respons2wxmp(result, toUserName)
+        post_img_respons2wxmp(response, toUserName)
         return
 
 def img_upload(local_path):
@@ -194,6 +193,21 @@ def delete_image(local_path):
     if not local_path:
         return
     os.remove(local_path)
+
+def get_welcome_words():
+    return '''
+嗨，你好！我是全世界最聪明的聊天机器人“机器知心”，接下来我会一直陪着你解答你的任何问题，比如你可以问我：“外星人真实存在吗？”
+
+问题1：外星人真实存在吗？
+问题2：三星堆文化来自何方？
+问题3：请帮我列出双色球的预测方法？
+问题4：怎么做辣椒炒肉？
+问题5：怎么吃减肥最快？
+
+你也可以向我提出画图的问题，只要以画开头提问就好了，比如：
+问题1：画一只正在玩球的金毛
+问题2：画一个写作业的小学生
+'''
 
 
 if __name__ == '__main__':
