@@ -32,7 +32,7 @@ class WxmpToken(object):
             #初始化
             if self.timestamp is None or self.token is None:
                 oldtoken = self.token
-                self.token = self._post_get_wxmp_token()
+                self.token = self._get_access_token()
                 self.timestamp = time.time()
                 logger.info("get newtoken={} oldtoken={} time={}".format(self.token, oldtoken, self.timestamp))
                 time.sleep(1.0/100)
@@ -42,7 +42,7 @@ class WxmpToken(object):
                 timediff = nowtime - self.timestamp
                 #过期了
                 if (timediff > self.timeout):
-                    tmp_token = self._post_get_wxmp_token() 
+                    tmp_token = self._get_access_token() 
                     #拿到相同的token了
                     if tmp_token == self.token:
                         logger.info("get same token, do nothing")
@@ -54,42 +54,40 @@ class WxmpToken(object):
             #1s检查一次
             time.sleep(1)
 
-    def _post_get_wxmp_token(self):
+    # 获取access_token
+    def _get_access_token(self):
         try:
             appid = get_config().appid
             secret = get_config().secret
-            body = {
-                "grant_type": "client_credential",
-                "appid": appid,
-                "secret": secret
-            }
             url = 'https://api.weixin.qq.com/cgi-bin/token'
-            body = parse.urlencode(body)
-            res = requests.post(url=url, data=body)
-
-            logger.info("gettoken, res={}content={}".format(res, ""))
-            content = json.loads(res.content.decode())
-            logger.info("gettoken, res={}content={}".format(res, content))
-            return content['access_token']
+            params = {
+                'grant_type': 'client_credential',
+                'appid': appid,
+                'secret': secret
+            }
+            response = requests.get(url, params=params)
+            access_token = json.loads(response.text)['access_token']
+            return access_token
         except Exception as e:
-            print (traceback.print_exc())
-        
+            logger.info("_get_access_token error")
+            return None
+
     def close(self):
         self.is_running = False
 
 wxToken = WxmpToken()
 def get_wxmp_token():
-    return wxToken.get_token()
+    while True:
+        token = wxToken.get_token()
+        if token:
+            return token
+        time.sleep(1)
 
 def post_respons2wxmp(res=None, touser=None):
     if not(res and touser):
         return False
-    retry = 10
-    while(get_wxmp_token() is None and retry > 0):
-        time.sleep(1)
-        retry -= 1
-
-    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token() + "&charset=utf-8";
+    access_token = get_wxmp_token()
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + access_token + "&charset=utf-8";
     body={
         "touser": touser, 
         "msgtype": "text", 
@@ -106,11 +104,7 @@ def post_respons2wxmp(res=None, touser=None):
 def post_img_respons2wxmp(image_url=None, touser=None):
     if not(image_url and touser):
         return False
-    retry = 10
-    while(get_wxmp_token() is None and retry > 0):
-        time.sleep(1)
-        retry -= 1
-
+    access_token = get_wxmp_token()
     try:
         local_path = '/var/tmp/' + touser + '_' + str(int(time.time() * 1000)) + '.png'
         download_image(image_url, local_path)
@@ -120,7 +114,7 @@ def post_img_respons2wxmp(image_url=None, touser=None):
         logger.info('error processing image:'.format(e))
         return False
 
-    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + get_wxmp_token()
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + access_token
     body = {
         "touser": touser,
         "msgtype": "image",
@@ -185,8 +179,8 @@ def do_wechat_chat_completion(request_json, bot):
         return
 
 def img_upload(local_path):
-    token = get_wxmp_token()
-    url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s" % (token, "image")
+    access_token = get_wxmp_token()
+    url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s" % (access_token, "image")
     files = {'media': open('{}'.format(local_path), 'rb')}
     res = requests.post(url, files=files)
     content = json.loads(res.content.decode())
