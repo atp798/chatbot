@@ -1,16 +1,15 @@
 import json
 import time
 import threading
+import os
 import sys
-#sys.path.append("./")
+sys.path.append(os.getcwd())
 from urllib import parse, request
-from config import get_config
 from common.log import logger
 from common.singleton import SingletonC
+from config import get_config
 import requests
-import xmltodict
 from flask import jsonify
-import os
 
 @SingletonC
 class WxmpToken(object):
@@ -138,9 +137,18 @@ def do_wechat_chat_completion(request_json, bot):
     #parameter constant
     logger.info("begin process request_json={}".format(request_json))
 
-    if request_json["MsgType"] == "event" and request_json["Event"] == "subscribe":
-        post_respons2wxmp(get_welcome_words, request_json["FromUserName"])
-        logger.info("handle subscribe event, return welcome words")
+    try:
+        #关注
+        if request_json["MsgType"] == "event" and request_json["Event"] == "subscribe":
+            post_respons2wxmp(get_welcome_words, request_json["FromUserName"])
+            logger.info("handle subscribe event, return welcome words")
+            return
+
+        #取关
+        if request_json["MsgType"] == "event" and request_json["Event"] == "unsubscribe":
+            return
+    except Exception as error:
+        logger.info("handler subscribe/unsubscribe reqeust error")
         return
 
     session_id = request_json["FromUserName"]
@@ -211,4 +219,5 @@ def get_welcome_words():
 
 
 if __name__ == '__main__':
-    post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
+    #post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
+    print (get_welcome_words())
