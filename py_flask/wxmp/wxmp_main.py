@@ -40,7 +40,7 @@ def process_wxmp_request(request_json, bot):
     context = dict()
     context['session_id'] = session_id
     context['type'] = request_json.get("MsgType", "TEXT").upper()
-    context['type'] = "IMAGE" if (query.startswith("画") or "图片" in query or query.startswith("帮我画")) else context['type']
+    context['type'] = "IMAGE" if (query.startswith("画") or query.startswith("帮我画")) else context['type']
 
     response = None
     retry = 3
