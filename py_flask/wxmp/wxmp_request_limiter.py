@@ -89,7 +89,6 @@ class WxmpRequestLimiter:
         # 计算当天凌晨时间戳
         midnight = int((now + tz_secs) // 86400 * 86400 - tz_secs)
 
-        logger.info("midnight={}, access={}, msgtype={}".format(midnight, session, msgtype))
         access_timestamp = [s for s in session if s.get("type") == msgtype and s.get("timestamp", 0) > midnight]
 
         btime = time.time()
@@ -100,7 +99,7 @@ class WxmpRequestLimiter:
             self.openid_dict[openid] = None
 
         limit_conf = self.get_vip_limit_by_level(user_tag)
-        logger.info("timediff={} usertag={} limitconf={}".format(time.time()-btime, user_tag, limit_conf))
+        logger.info("midnight={}, access={}, msgtype={}, usertag={} limitconf={}".format(midnight, session, msgtype, user_tag, limit_conf))
         return len(access_timestamp) > limit_conf.limit_dict[msgtype]
 
     #同步更新，粗暴实现，可以考虑异步
