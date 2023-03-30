@@ -3,7 +3,7 @@ from bot.bot import Bot
 from common.log import logger
 from common.token_bucket import TokenBucket
 from common.expired_dict import ExpiredDict
-from common.wxmp_request_limiter import WxmpRequestLimiter
+from wxmp.wxmp_request_limiter import WxmpRequestLimiter
 import openai
 import time
 import pickle
