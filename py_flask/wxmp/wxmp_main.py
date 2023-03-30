@@ -13,6 +13,10 @@ from wxmp.wxmp_post2user import post_img_respons2wxmp, post_respons2wxmp
 def process_wxmp_request(request_json, bot):
     #parameter constant
     logger.info("begin process request_json={}".format(request_json))
+    can_process_type = ['text', 'event']
+    if not request_json.get('MsgType', None) in can_process_type:
+        logger.info("cannot process this msgtype")
+        return
 
     #对关注请求特殊处理
     try:
