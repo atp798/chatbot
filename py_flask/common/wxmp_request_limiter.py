@@ -70,7 +70,7 @@ class WxmpRequestLimiter:
             tags = min([max(tags), VIP_LEVEL.NOLIMIT.value])
             return tags
         except Exception as e:
-            logger.info("get user tags info error, set to nolimit mode...")
+            #logger.info("get user tags info error, set to nolimit mode...")
             return None
 
     def update_user_vip_level_asyn(self):
