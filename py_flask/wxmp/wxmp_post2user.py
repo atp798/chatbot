@@ -8,7 +8,7 @@ from common.log import logger
 import requests
 from flask import jsonify
 import traceback
-from wxmp_access_token import get_wxmp_token
+from wxmp.wxmp_access_token import get_wxmp_token
 
 def do_post_action(url="", body={}, retry=0):
     try:
