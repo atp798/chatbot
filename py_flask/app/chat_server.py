@@ -7,7 +7,7 @@ import os
 from config import get_config
 from bot.bot_factory import create_bot
 import xmltodict
-from common.wxmp_utils import do_wechat_chat_completion
+from wxmp.wxmp_main import process_wxmp_request
 import threading
 
 
@@ -122,7 +122,7 @@ class ChatServer:
                 debug_request(request)
 
             request_json = xmltodict.parse(request.data)['xml']
-            threading.Thread(target=do_wechat_chat_completion, args=(request_json, self._bot)).start()
+            threading.Thread(target=process_wxmp_request, args=(request_json, self._bot)).start()
             return "success", 200
 
         @self._app.route("/openai/session/chat-completion", methods=["POST"])

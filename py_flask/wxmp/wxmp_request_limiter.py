@@ -1,14 +1,9 @@
-import threading
-import time,datetime
-import os
-import sys
+import threading, time, os, sys, json, requests
 sys.path.append(os.getcwd())
 from common.log import logger
-import json
-import requests
 import traceback
 import base64
-from common.wxmp_utils import get_wxmp_token
+from wxmp.wxmp_access_token import get_wxmp_token
 from enum import Enum
 import threading
 from common.singleton import SingletonC
