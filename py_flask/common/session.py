@@ -20,7 +20,7 @@ class Session(object):
             #self._all_sessions = ExpiredDict(config_parser.expires_in_seconds)
         self._max_tokens = config_parser.conversation_max_tokens
         if self._max_tokens <= 0:
-            self._max_tokens = 1024
+            self._max_tokens = 4096
         self._character_desc = config_parser.character_desc
         self.wxmp_request_limiter = WxmpRequestLimiter()
 
