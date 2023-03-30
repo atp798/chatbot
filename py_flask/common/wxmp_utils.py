@@ -67,7 +67,7 @@ class WxmpToken(object):
             access_token = json.loads(response.text)['access_token']
             return access_token
         except Exception as e:
-            logger.info("_get_access_token error")
+            logger.info("_get_access_token error={}".format(response.text))
             return None
 
     def close(self):
@@ -81,7 +81,19 @@ def get_wxmp_token():
             return token
         time.sleep(1)
 
-def post_respons2wxmp(res=None, touser=None):
+def do_post_action(url="", body={}, retry=0):
+    try:
+        res = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
+        logger.info("post msg to wxmp, status={}, could retry {} times".format(res.text, retry)) 
+        if json.loads(res.text).get('errcode') != 0 and retry > 0:
+            return do_post_action(url, body, retry - 1)
+    except Exception as e:
+        traceback.print_exc()
+        if retry > 0:
+            return do_post_action(url, body, retry - 1)
+        return False
+
+def post_respons2wxmp(res=None, touser=None, retry=0):
     if not(res and touser):
         return False
     access_token = get_wxmp_token()
@@ -93,13 +105,10 @@ def post_respons2wxmp(res=None, touser=None):
             "content": res
             }
     }
-    headers = {'content-type': 'charset=utf8'}
-    #text=requests.post(url=url, json=json.loads(json.dumps(res, ensure_ascii=False), encoding='utf-8'))
-    res = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
-    logger.info("post msg to wxmp, status={}".format(res)) 
-    return True
+    return do_post_action(url=url, body=body, retry=5)
 
-def post_img_respons2wxmp(image_url=None, touser=None):
+
+def post_img_respons2wxmp(image_url=None, touser=None, retry=0):
     if not(image_url and touser):
         return False
     access_token = get_wxmp_token()
@@ -109,7 +118,7 @@ def post_img_respons2wxmp(image_url=None, touser=None):
         media_id = img_upload(local_path)
         delete_image(local_path)
     except Exception as e:
-        logger.info('error processing image:'.format(e))
+        logger.info('error update image to wx:'.format(e))
         return False
 
     url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + access_token
@@ -120,10 +129,7 @@ def post_img_respons2wxmp(image_url=None, touser=None):
             "media_id": media_id
         }
     }
-    #headers = {'content-type': 'charset=utf8'}
-    res = requests.post(url=url, data=bytes(json.dumps(body, ensure_ascii=False), encoding='utf-8'))
-    logger.info("post img msg to wxmp, status={}".format(res)) 
-    return True
+    return do_post_action(url=url, body=body, retry=5)
 
 def do_wechat_chat_completion(request_json, bot):
     #parameter constant
@@ -208,5 +214,27 @@ def get_welcome_words():
 
 if __name__ == '__main__':
     wxToken = WxmpToken()
-    post_respons2wxmp(get_welcome_words(), "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
-    #print (get_welcome_words())
+
+    cc = '''
+好的，以下是一个使用pyproj库进行WGS84大地坐标系和CGCS2000大地坐标系之间坐标转换的Python代码示例：
+
+```python
+import pyproj
+
+# 定义WGS84大地坐标系和CGCS2000大地坐标系之间的转换器
+wgs84 = pyproj.Proj('EPSG:4326')
+cgcs2000 = pyproj.Proj('EPSG:4490')
+
+# 定义WGS84大地坐标系中的点坐标
+lon, lat, alt = 116.3975, 39.9086, 0.0
+
+# 将WGS84大地坐标系中的点坐标转换为CGCS2000大地坐标系中的点坐标
+x, y, z = pyproj.transform(wgs84, cgcs2000, lon, lat, alt)
+
+# 输出CGCS2000大地坐标系中的点坐标
+print('CGCS2000大地坐标系中的点坐标为：', x, y, z)
+```
+
+以上代码中，我们首先定义了WGS84大地坐标系和CGCS2000大地坐标系之间的转换器，然后定义了WGS84大地坐标系中的点坐标，最后使用`pyproj.transform()`函数将WGS84大地坐标系中的点坐标转换为CGCS2000大地坐标系中的点坐标，并输出转换后的结果。
+'''
+    post_respons2wxmp(cc, "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
