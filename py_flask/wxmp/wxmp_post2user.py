@@ -26,6 +26,8 @@ def post_respons2wxmp(res=None, touser=None, retry=0):
     if not(res and touser):
         return False
     access_token = get_wxmp_token()
+    #res截断，最多不能超过2048
+    res = res[:2048]
     url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + access_token + "&charset=utf-8";
     body={
         "touser": touser, 
@@ -78,4 +80,8 @@ def delete_image(local_path):
     os.remove(local_path)
 
 if __name__ == '__main__':
-    post_respons2wxmp("test中文", "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
+
+    ss='''中文'''
+    ss = ss[:2048]
+    print('len=', len(ss))
+    #post_respons2wxmp(ss, "oiJo_5lGFN1xwiQtvFxT2W_7N6v8")
