@@ -32,11 +32,10 @@ class ChatGPTBot(Bot):
         # acquire reply content
         '''
             type and session_id is important in context!!!
+            type is TEXT by default
         '''
-        msgtype = context.get('type')
+        msgtype = context.get('type', 'TEXT')
         msgtype = "IMAGE" if query.startswith("画") else msgtype
-        if msgtype is None:
-            return ""
 
         logger.info("[OPEN_AI] begin process query={}".format(query))
         session_id = context.get('session_id')
