@@ -2,7 +2,11 @@ import requests
 from dicttoxml import dicttoxml
 import json
 
+import os
+import sys
+sys.path.append(os.getcwd())
 
+from wxmp.wxmp_post2user import do_post_action
 
 
 def post2test_serv():
@@ -24,6 +28,20 @@ def post2test_serv():
     print("post res= ", text)
     return
 
+def test_android_app_post():
+    url = "http://128.1.41.43:9081/openai/session/chat-completion"
+    body = {
+        "query": "help me to write a flask demo program",
+        "session_id": "test_did",
+        "msgtype" : "text"
+    }
+
+    res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})
+    return res
+    #do_post_action(url=url, body=body, retry=0)
+
 
 if __name__ == '__main__':
-    post2test_serv()
+    #post2test_serv()
+    test = test_android_app_post()
+    print(test.text)

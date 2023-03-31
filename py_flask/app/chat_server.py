@@ -149,6 +149,7 @@ class ChatServer:
 
             context = dict()
             context['session_id'] = session_id
+            context['type'] = request_json.get('msgtype', "text").upper()
 
             response = None
             result = ""
