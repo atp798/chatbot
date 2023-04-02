@@ -16,7 +16,7 @@ def post2test_serv():
         'FromUserName': 'oiJo_5lGFN1xwiQtvFxT2W_7N6v8', 
         'CreateTime': '1679918602', 
         'MsgType': 'text', 
-        'Content': '写一首诗',
+        'Content': '你是gpt几？',
         'MsgId': '24050651727617347'
     }
 
@@ -29,7 +29,7 @@ def post2test_serv():
     return
 
 def test_android_app_post():
-    url = "http://128.1.41.43:9081/openai/session/chat-completion"
+    url = "http://chatbot.huago.app/openai/session/chat-completion"
     body = {
         "query": "help me to write a flask demo program",
         "session_id": "test_did",
@@ -42,6 +42,6 @@ def test_android_app_post():
 
 
 if __name__ == '__main__':
-    #post2test_serv()
-    test = test_android_app_post()
+    post2test_serv()
+    #test = test_android_app_post()
     print(test.text)

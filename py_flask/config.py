@@ -89,6 +89,7 @@ class ConfigParser:
         self.character_desc = self._json_config.get("character_desc")
         self.appid = self._json_config.get("appid")
         self.secret = self._json_config.get("secret")
+        self.gpt_model = self._json_config.get("model")
 
 
 config = ConfigParser()
