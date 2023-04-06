@@ -108,23 +108,6 @@ class ChatServer:
             # 返回结果到客户端
             return jsonify({"code": 200, "msg": "success", "data": result})
 
-        @self._app.route("/openai/session/wechat/chat-completion",
-                         methods=["GET"])
-        def do_wechat_check():
-            logger.info("echostr +++ {}".format(request.args.get("echostr")))
-            #return jsonify({"code": 200, "msg": "success", "data": request.args.get("echostr")})
-            return request.args.get("echostr"), 200
-
-        @self._app.route("/openai/session/wechat/chat-completion",
-                         methods=["POST"])
-        def session_wechat_chat_completion():
-            if self._debug_mode:
-                debug_request(request)
-
-            request_json = xmltodict.parse(request.data)['xml']
-            threading.Thread(target=process_wxmp_request, args=(request_json, self._bot)).start()
-            return "success", 200
-
         @self._app.route("/openai/session/chat-completion", methods=["POST"])
         def session_chat_completion():
             if self._debug_mode:
@@ -146,10 +129,12 @@ class ChatServer:
 
             query = request_json[QUERY]
             session_id = request_json[SESSION_ID]
+            msgtype = request_json.get('msgtype', "text").upper()
+            msgtype = "IMAGE" if query.startswith("画") else msgtype
 
             context = dict()
             context['session_id'] = session_id
-            context['type'] = request_json.get('msgtype', "text").upper()
+            context['type'] = msgtype
 
             response = None
             result = ""
@@ -163,7 +148,23 @@ class ChatServer:
                 return jsonify({"code": 302, "msg": "internal error"})
 
             # 返回结果到客户端
-            return jsonify({"code": 200, "msg": "success", "data": result})
+            return jsonify({"code": 200, "msg": "success", "data": result, "msgtype": msgtype})
+        
+
+        @self._app.route("/openai/session/wechat/chat-completion", methods=["GET"])
+        def do_wechat_check():
+            logger.info("echostr +++ {}".format(request.args.get("echostr")))
+            #return jsonify({"code": 200, "msg": "success", "data": request.args.get("echostr")})
+            return request.args.get("echostr"), 200
+
+        @self._app.route("/openai/session/wechat/chat-completion", methods=["POST"])
+        def session_wechat_chat_completion():
+            if self._debug_mode:
+                debug_request(request)
+
+            request_json = xmltodict.parse(request.data)['xml']
+            threading.Thread(target=process_wxmp_request, args=(request_json, self._bot)).start()
+            return "success", 200
 
     def run(self):
         self._app.run(host=self._ip_addr,
