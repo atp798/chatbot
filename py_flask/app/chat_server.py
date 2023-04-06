@@ -113,43 +113,33 @@ class ChatServer:
             if self._debug_mode:
                 debug_request(request)
                 
-            #parameter constant
-            QUERY = "query"
-            SESSION_ID = "session_id"
-
             request_json = request.get_json()
             if len(request_json) == 0:
                 return jsonify({"code": 301, "msg": "empty request"})
-            if QUERY not in request_json or not isinstance(
-                    request_json[QUERY], str):
+            if "query" not in request_json or not isinstance(request_json["query"], str):
                 return jsonify({"code": 301, "msg": "empty query"})
-            if SESSION_ID not in request_json or not isinstance(
-                    request_json[SESSION_ID], str):
+            if "session_id" not in request_json or not isinstance(request_json["session_id"], str):
                 return jsonify({"code": 301, "msg": "empty session id"})
 
-            query = request_json[QUERY]
-            session_id = request_json[SESSION_ID]
-            msgtype = request_json.get('msgtype', "text").upper()
-            msgtype = "IMAGE" if query.startswith("画") else msgtype
-
-            context = dict()
-            context['session_id'] = session_id
-            context['type'] = msgtype
-
-            response = None
-            result = ""
             try:
+                #构建请求chatgpt的query
+                query = request_json["query"]
+                session_id = request_json["session_id"]
+                msgtype = request_json.get('msgtype', "text").upper()
+                msgtype = "IMAGE" if query.startswith("画") else msgtype
+
+                context = dict()
+                context['session_id'] = session_id
+                context['type'] = msgtype
+
+                #请求chatgpt 
                 response = self._bot.reply(query, context)
-                # 从响应中获取结果
-                result = response
+                # 返回结果到客户端
+                return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
                 if self._debug_mode:
                     print(response)
                 return jsonify({"code": 302, "msg": "internal error"})
-
-            # 返回结果到客户端
-            return jsonify({"code": 200, "msg": "success", "data": result, "msgtype": msgtype})
-        
 
         @self._app.route("/openai/session/wechat/chat-completion", methods=["GET"])
         def do_wechat_check():
