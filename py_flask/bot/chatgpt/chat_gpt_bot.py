@@ -10,6 +10,8 @@ import time
 import requests
 import io
 from config import get_config
+import base64
+
 
 # OpenAI对话模型API (可用)
 class ChatGPTBot(Bot):
@@ -159,5 +161,6 @@ class ChatGPTBot(Bot):
             except Exception as e:
                 logger.warn("reply_image_rawdata download img error, retry count={}".format(retry_count))
 
+        imgcontent = base64.b64encode(imgcontent)
         return {"completion_images": 1, "content": imgcontent}
 
