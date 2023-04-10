@@ -34,8 +34,10 @@ class ChatGPTBot(Bot):
             type and session_id is important in context!!!
             type is TEXT by default
         '''
-        msgtype = context.get('type', 'TEXT')
-        msgtype = "IMAGE" if query.startswith("画") else msgtype
+        msgtype = context.get('type', None)
+        if msgtype is None:
+            logger.warn("[OPEN_AI] error request, no msgtype!")
+            return ""
 
         logger.info("[OPEN_AI] begin process query={}".format(query))
         session_id = context.get('session_id')
@@ -53,18 +55,16 @@ class ChatGPTBot(Bot):
             prefix = "画图对话" if msgtype == "IMAGE" else ""
             return prefix+"请求已经达到最大次数，请明天再来..."
 
-        logger.debug("[OPEN_AI] session query={}".format(session))
-
         btime = time.time()
         if msgtype == "TEXT":
             reply_content = self.reply_text(session, session_id, 0)
             if reply_content["completion_tokens"] > 0:
                 self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
 
-        if msgtype == "IMAGE":
+        elif msgtype == "IMAGE":
             reply_content = self.reply_image(query, 0)
 
-        if msgtype == "IMAGE_RAW":
+        elif msgtype == "IMAGE_RAW":
             reply_content = self.reply_image_rawdata(query)
 
         tdiff = time.time() - btime
@@ -143,6 +143,7 @@ class ChatGPTBot(Bot):
                 return "请求太快啦，请休息一下再问我吧"
             
     def reply_image_rawdata(self, query):
+        logger.info("[OPEN_AI] image_raw_query={}".format(query))
         imgurl = self.reply_image(query=query, retry_count=3).get("content", None)
         if imgurl is None:
             return ""
