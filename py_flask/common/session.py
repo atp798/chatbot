@@ -51,7 +51,8 @@ class Session(object):
 
         session = self._all_sessions.get(session_id, [])
         session_record = self._all_sessions.get(session_id + "_record", [])
-        is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record, msgtype)
+        #is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record, msgtype)
+        is_limited = False
         if is_limited: #没有限额了
             return None
 
