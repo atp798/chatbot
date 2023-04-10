@@ -161,6 +161,6 @@ class ChatGPTBot(Bot):
             except Exception as e:
                 logger.warn("reply_image_rawdata download img error, retry count={}".format(retry_count))
 
-        imgcontent = base64.b64encode(imgcontent)
+        imgcontent = base64.b64encode(imgcontent).decode()
         return {"completion_images": 1, "content": imgcontent}
 
