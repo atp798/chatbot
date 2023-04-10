@@ -9,6 +9,7 @@ from bot.bot_factory import create_bot
 import xmltodict
 from wxmp.wxmp_main import process_wxmp_request
 import threading
+import traceback
 
 
 class ChatServer:
@@ -137,8 +138,7 @@ class ChatServer:
                 # 返回结果到客户端
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
-                if self._debug_mode:
-                    print(response)
+                traceback.print_exc()
                 return jsonify({"code": 302, "msg": "internal error"})
 
         @self._app.route("/openai/session/wechat/chat-completion", methods=["GET"])
