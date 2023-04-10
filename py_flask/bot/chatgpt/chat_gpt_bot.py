@@ -64,6 +64,9 @@ class ChatGPTBot(Bot):
         if msgtype == "IMAGE":
             reply_content = self.reply_image(query, 0)
 
+        if msgtype == "IMAGE_RAW":
+            reply_content = self.reply_image_rawdata(query)
+
         tdiff = time.time() - btime
         logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
         return reply_content["content"]
@@ -138,3 +141,22 @@ class ChatGPTBot(Bot):
                 return self.create_img(query, retry_count+1)
             else:
                 return "请求太快啦，请休息一下再问我吧"
+            
+    def reply_image_rawdata(self, query):
+        imgurl = self.reply_image(query=query, retry_count=3).get("content", None)
+        if imgurl is None:
+            return ""
+        
+        retry_count = 3
+        imgcontent = ""
+        while retry_count > 0:
+            retry_count -= 1
+            try:
+                imgcontent = requests.get(imgurl).content
+                if imgcontent:
+                    break
+            except Exception as e:
+                logger.warn("reply_image_rawdata download img error, retry count={}".format(retry_count))
+
+        return {"completion_images": 1, "content": imgcontent}
+
