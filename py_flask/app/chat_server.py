@@ -127,7 +127,7 @@ class ChatServer:
                 query = request_json["query"]
                 session_id = request_json["session_id"]
                 msgtype = request_json.get('msgtype', "text").upper()
-                msgtype = "IMAGE_RAW" if query.startswith("画") else msgtype
+                msgtype = "IMAGE_RAW" if query.startswith(("画","draw","Draw","帮我画")) else msgtype
 
                 context = dict()
                 context['session_id'] = session_id
