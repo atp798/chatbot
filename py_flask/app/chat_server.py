@@ -160,18 +160,17 @@ class ChatServer:
                 query = request_json["query"]
                 session_id = request_json["session_id"]
                 msgtype = request_json.get('msgtype', "text").upper()
+                msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
+                msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
+
                 response = None
-                if msgtype == "IMAGE_SD" :
+                if msgtype == "IMAGE" :
                     height = request_json["height"]
                     width = request_json["width"]
                     steps = request_json["steps"]
                     #请求Stable Diffusion
                     response = request_sd_image(query, height, width, steps)
                 else :
-                    #msgtype = "IMAGE_RAW" if query.startswith(("画","draw","Draw","帮我画")) else msgtype
-                    msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
-                    msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
-
                     context = dict()
                     context['session_id'] = session_id
                     context['type'] = msgtype
