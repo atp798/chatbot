@@ -172,7 +172,7 @@ class ChatServer:
                     #判断是否有中文,是则翻译
                     if any(item in {'画'} for item in query[:4]):
                         context = dict()
-                        context['session_id'] = session_id + time.time() #不要和之前的请求有关联
+                        context['session_id'] = session_id + str(time.time()) #不要和之前的请求有关联
                         context['type'] = "TEXT"
                         #请求chatgpt
                         response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request, just answer the content of the drawing, without any extra words:' + query, context)
