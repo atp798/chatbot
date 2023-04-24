@@ -212,7 +212,7 @@ class ChatServer:
             url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
             body = {
                 "prompt": prompt,
-                "negativePrompt": " (naked:1.4),(nsfw:1.4),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck))),naked,nsfw,",
+                "negativePrompt": " (naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
                 "height": height,
                 "width": width,
                 "steps": steps,
