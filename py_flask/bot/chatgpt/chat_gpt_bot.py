@@ -51,7 +51,7 @@ class ChatGPTBot(Bot):
             self._session.clear_all_session()
             return '所有人会话历史已清除'
 
-        session = [] if msgtype == "TEXT_ONCE" else self._session.build_session_query(query, session_id, msgtype) 
+        session = self._session.build_session_query(query, session_id, msgtype) 
         if session is None:
             prefix = "文字对话" if msgtype == "TEXT" else ""
             prefix = "画图对话" if msgtype == "IMAGE" else ""

@@ -49,6 +49,10 @@ class Session(object):
         ]
         '''
 
+        if msgtype == "TEXT_ONCE":
+            user_item = {'role': 'user', 'content': query}
+            return [].append(user_item)
+
         session = self._all_sessions.get(session_id, [])
         session_record = self._all_sessions.get(session_id + "_record", [])
         #is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record, msgtype)
