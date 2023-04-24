@@ -39,8 +39,10 @@ def process_wxmp_request(request_json, bot):
     #标注请求类型，文字还是画图，有可能有更复杂的
     context = dict()
     context['session_id'] = session_id
-    context['type'] = request_json.get("MsgType", "TEXT").upper()
-    context['type'] = "IMAGE" if (query.startswith("画") or query.startswith("帮我画")) else context['type']
+    msg_type = request_json.get("MsgType", "TEXT").upper()
+    msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
+    msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
+    context['type'] = msg_type
 
     response = None
     retry = 3

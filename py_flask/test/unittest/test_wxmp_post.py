@@ -6,7 +6,7 @@ import os
 import sys
 sys.path.append(os.getcwd())
 
-from wxmp.wxmp_post2user import do_post_action
+#from wxmp.wxmp_post2user import do_post_action
 
 
 def post2test_serv():
@@ -42,6 +42,13 @@ def test_android_app_post():
 
 
 if __name__ == '__main__':
-    post2test_serv()
+    #post2test_serv()
     #test = test_android_app_post()
-    print(test.text)
+    #print(test.text)
+    query="帮我我我画画衣服"
+    #query="draw"
+    msg = "IMAGE" if any(item in {'画'} for item in query[:4]) else 'text'
+    msg = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg
+    print('-----------------')
+    print(query[:5])
+    print(msg)
