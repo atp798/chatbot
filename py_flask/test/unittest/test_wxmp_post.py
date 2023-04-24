@@ -46,9 +46,11 @@ if __name__ == '__main__':
     #test = test_android_app_post()
     #print(test.text)
     query="帮我我我画画衣服"
+    query = "给我画一个猫"
     #query="draw"
-    msg = "IMAGE" if any(item in {'画'} for item in query[:4]) else 'text'
-    msg = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg
+    msg_type = "TEXT"
+    msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
+    msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
     print('-----------------')
     print(query[:5])
-    print(msg)
+    print(msg_type)

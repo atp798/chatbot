@@ -160,17 +160,26 @@ class ChatServer:
                 query = request_json["query"]
                 session_id = request_json["session_id"]
                 msgtype = request_json.get('msgtype', "text").upper()
-                msgtype = "IMAGE" if any(item in {'画'} for item in query[:4]) else msgtype #对中文，前4个字包含画
-                msgtype = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msgtype #对英文，前4个词包含画
+                msgtype = "IMAGE_SD" if any(item in {'画'} for item in query[:4]) else msgtype #对中文，前4个字包含画
+                msgtype = "IMAGE_SD" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msgtype #对英文，前4个词包含画
 
                 response = None
-                if msgtype == "IMAGE" :
+                if msgtype == "IMAGE_SD" :
                     height = request_json["height"]
                     width = request_json["width"]
                     steps = request_json["steps"]
+                    #判断是否有中文,是则翻译
+                    if any(item in {'画'} for item in query[:4]):
+                        context = dict()
+                        context['session_id'] = session_id
+                        context['type'] = msgtype
+                        #请求chatgpt
+                        response = self._bot.reply('翻译以下内容，只输出英文翻译即可：' + query, context)
+                        query = response
+
                     #请求Stable Diffusion
                     response = request_sd_image(query, height, width, steps)
-                else :
+                elif msgtype == "TEXT":
                     context = dict()
                     context['session_id'] = session_id
                     context['type'] = msgtype
@@ -203,7 +212,7 @@ class ChatServer:
             url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
             body = {
                 "prompt": prompt,
-                "negativePrompt": " (worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck))),naked,nsfw,",
+                "negativePrompt": " (naked:1.4),(nsfw:1.4),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck))),naked,nsfw,",
                 "height": height,
                 "width": width,
                 "steps": steps,
