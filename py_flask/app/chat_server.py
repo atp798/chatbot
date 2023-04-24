@@ -174,7 +174,7 @@ class ChatServer:
                         context['session_id'] = session_id
                         context['type'] = "TEXT"
                         #请求chatgpt
-                        response = self._bot.reply('Translate the fllowing content into english, note that your translated content is mainly for a drawing AI:' + query, context)
+                        response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request, just answer the content of the drawing, without any extra words:' + query, context)
                         query = response.strip('"')
 
                     #请求Stable Diffusion
