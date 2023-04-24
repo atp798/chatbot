@@ -51,14 +51,14 @@ class ChatGPTBot(Bot):
             self._session.clear_all_session()
             return '所有人会话历史已清除'
 
-        session = self._session.build_session_query(query, session_id, msgtype)
+        session = [] if msgtype == "TEXT_ONCE" else self._session.build_session_query(query, session_id, msgtype) 
         if session is None:
             prefix = "文字对话" if msgtype == "TEXT" else ""
             prefix = "画图对话" if msgtype == "IMAGE" else ""
             return prefix+"请求已经达到最大次数，请明天再来..."
 
         btime = time.time()
-        if msgtype == "TEXT":
+        if msgtype == "TEXT" or msgtype == "TEXT_ONCE":
             reply_content = self.reply_text(session, session_id, 0)
             if reply_content["completion_tokens"] > 0:
                 self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])

@@ -172,8 +172,8 @@ class ChatServer:
                     #判断是否有中文,是则翻译
                     if any(item in {'画'} for item in query[:4]):
                         context = dict()
-                        context['session_id'] = session_id + str(time.time()) #不要和之前的请求有关联
-                        context['type'] = "TEXT"
+                        context['session_id'] = session_id
+                        context['type'] = "TEXT_ONCE" #text without session
                         #请求chatgpt
                         response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request in English, just answer the content of the drawing, without any extra words:' + query, context)
                         query = response.strip('"')
@@ -214,7 +214,7 @@ class ChatServer:
             url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
             body = {
                 "prompt": prompt,
-                "negativePrompt": " (naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
+                "negativePrompt": "(multi hands),(naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
                 "height": height,
                 "width": width,
                 "steps": steps,
