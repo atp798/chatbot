@@ -17,7 +17,8 @@ class WxmpToken(object):
         self.token = None
         self.timeout = 60 if expire_time is None else expire_time
         self.is_running = True
-        threading.Thread(target=self._auto_get_token).start()
+        if get_config().open_wxmp:
+            threading.Thread(target=self._auto_get_token).start()
 
     def get_token(self):
         return self.token
