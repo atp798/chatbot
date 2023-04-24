@@ -160,8 +160,8 @@ class ChatServer:
                 query = request_json["query"]
                 session_id = request_json["session_id"]
                 msgtype = request_json.get('msgtype', "text").upper()
-                msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
-                msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
+                msgtype = "IMAGE" if any(item in {'画'} for item in query[:4]) else msgtype #对中文，前4个字包含画
+                msgtype = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msgtype #对英文，前4个词包含画
 
                 response = None
                 if msgtype == "IMAGE" :
