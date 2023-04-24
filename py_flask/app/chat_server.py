@@ -172,7 +172,7 @@ class ChatServer:
                     if any(item in {'画'} for item in query[:4]):
                         context = dict()
                         context['session_id'] = session_id
-                        context['type'] = msgtype
+                        context['type'] = "TEXT"
                         #请求chatgpt
                         response = self._bot.reply('翻译以下内容，只输出英文翻译即可：' + query, context)
                         query = response
