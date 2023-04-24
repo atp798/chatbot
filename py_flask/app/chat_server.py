@@ -10,7 +10,8 @@ import xmltodict
 from wxmp.wxmp_main import process_wxmp_request
 import threading
 import traceback
-
+import requests
+import json
 
 class ChatServer:
 
@@ -140,6 +141,49 @@ class ChatServer:
             except Exception:
                 traceback.print_exc()
                 return jsonify({"code": 302, "msg": "internal error"})
+            
+        @self._app.route("/openai/session/chat-completion-v2", methods=["POST"])
+        def session_chat_completion_v2():
+            if self._debug_mode:
+                debug_request(request)
+
+            request_json = request.get_json()
+            if len(request_json) == 0:
+                return jsonify({"code": 301, "msg": "empty request"})
+            if "query" not in request_json or not isinstance(request_json["query"], str):
+                return jsonify({"code": 301, "msg": "empty query"})
+            if "session_id" not in request_json or not isinstance(request_json["session_id"], str):
+                return jsonify({"code": 301, "msg": "empty session id"})
+
+            try:
+                #构建请求chatgpt的query
+                query = request_json["query"]
+                session_id = request_json["session_id"]
+                msgtype = request_json.get('msgtype', "text").upper()
+                response = None
+                if msgtype == "IMAGE_SD" :
+                    height = request_json["height"]
+                    width = request_json["width"]
+                    steps = request_json["steps"]
+                    #请求Stable Diffusion
+                    response = request_sd_image(query, height, width, steps)
+                else :
+                    #msgtype = "IMAGE_RAW" if query.startswith(("画","draw","Draw","帮我画")) else msgtype
+                    msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
+                    msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
+
+                    context = dict()
+                    context['session_id'] = session_id
+                    context['type'] = msgtype
+
+                    #请求chatgpt
+                    response = self._bot.reply(query, context)
+
+                # 返回结果到客户端
+                return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
+            except Exception:
+                traceback.print_exc()
+                return jsonify({"code": 302, "msg": "internal error"})
 
         @self._app.route("/openai/session/wechat/chat-completion", methods=["GET"])
         def do_wechat_check():
@@ -155,7 +199,21 @@ class ChatServer:
             request_json = xmltodict.parse(request.data)['xml']
             threading.Thread(target=process_wxmp_request, args=(request_json, self._bot)).start()
             return "success", 200
+        
+        def request_sd_image(prompt, height, width, steps):
+            url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
+            body = {
+                "prompt": prompt,
+                "negativePrompt": " (worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck))),naked,nsfw,",
+                "height": height,
+                "width": width,
+                "steps": steps,
+                "samplerName": "DPM++ 2M Karras",
+                "sdModelCheckpoint": "camelliamix_25d_v10.safetensors"
+            }
 
+            res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})
+            return res.json()['images'][0]
     def run(self):
         self._app.run(host=self._ip_addr,
                       port=self._port,
