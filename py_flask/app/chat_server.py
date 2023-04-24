@@ -218,6 +218,7 @@ class ChatServer:
                 "height": height,
                 "width": width,
                 "steps": steps,
+                "restore_faces": True,
                 "sampler_name": "DPM++ 2M Karras",
                 "sd_model_checkpoint": "camelliamix_25d_v10.safetensors"
             }
