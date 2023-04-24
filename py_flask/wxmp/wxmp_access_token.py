@@ -15,7 +15,7 @@ class WxmpToken(object):
     def __init__(self, expire_time=None):
         self.timestamp = None
         self.token = None
-        self.timeout = 10 if expire_time is None else expire_time
+        self.timeout = 60 if expire_time is None else expire_time
         self.is_running = True
         threading.Thread(target=self._auto_get_token).start()
 
