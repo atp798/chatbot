@@ -160,32 +160,34 @@ class ChatServer:
                 #构建请求chatgpt的query
                 query = request_json["query"]
                 session_id = request_json["session_id"]
-                msgtype = request_json.get('msgtype', "text").upper()
-                msgtype = "IMAGE_SD" if any(item in {'画'} for item in query[:4]) else msgtype #对中文，前4个字包含画
-                msgtype = "IMAGE_SD" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msgtype #对英文，前4个词包含画
+
+                #意图判断
+                context = dict()
+                context['session_id'] = session_id
+                context['type'] = "TEXT_ONCE" #text without session
+                response = self._bot.reply('Determine if the following content is a drawing request, just answer me YES or NO:' + query, context)
+                msgtype = "IMAGE_SD" if response == "YES" else "TEXT"
 
                 response = None
                 if msgtype == "IMAGE_SD" :
+                    #如果是绘画意图，则翻译成英语
+                    context = dict()
+                    context['session_id'] = session_id
+                    context['type'] = "TEXT_ONCE" #text without session
+                    #请求chatgpt进行翻译
+                    response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request in English, just answer the content of the drawing, without any extra words:' + query, context)
+                    query = response.strip('"')
+                    logger.info("Image query:{}".format(query))
+
                     height = request_json["height"]
                     width = request_json["width"]
                     steps = request_json["steps"]
-                    #判断是否有中文,是则翻译
-                    if any(item in {'画'} for item in query[:4]):
-                        context = dict()
-                        context['session_id'] = session_id
-                        context['type'] = "TEXT_ONCE" #text without session
-                        #请求chatgpt
-                        response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request in English, just answer the content of the drawing, without any extra words:' + query, context)
-                        query = response.strip('"')
-                        logger.info("Image query:{}".format(query))
-
                     #请求Stable Diffusion
                     response = request_sd_image(query, height, width, steps)
                 elif msgtype == "TEXT":
                     context = dict()
                     context['session_id'] = session_id
                     context['type'] = msgtype
-
                     #请求chatgpt
                     response = self._bot.reply(query, context)
 
@@ -215,8 +217,8 @@ class ChatServer:
             body = {
                 "prompt": prompt,
                 "negativePrompt": "(multi hands),(naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
-                "height": height,
-                "width": width,
+                "height": 768,
+                "width": 480,
                 "steps": steps,
                 "restore_faces": True,
                 "sampler_name": "DPM++ 2M Karras",
