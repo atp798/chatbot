@@ -200,7 +200,7 @@ class ChatServer:
                     #请求chatgpt
                     response = self._bot.reply(query, context)
 
-                logger.info("end process,{}".format('; '.join(loginfo)))
+                logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
