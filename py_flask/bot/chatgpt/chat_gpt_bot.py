@@ -41,9 +41,11 @@ class ChatGPTBot(Bot):
             logger.warn("[OPEN_AI] error request, no msgtype!")
             return ""
 
-        logger.info("[OPEN_AI] begin process query={}".format(query))
-        session_id = context.get('session_id')
+        if not 'loginfo' in context:
+            context['loginfo'] = []
+        loginfo = context.get('loginfo')
 
+        session_id = context.get('session_id')
         if query == self._clear_memory_commands:
             self._session.clear_session(session_id)
             return '会话已清除'
@@ -72,7 +74,7 @@ class ChatGPTBot(Bot):
             reply_content = self.reply_image_rawdata(query)
 
         tdiff = time.time() - btime
-        logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
+        loginfo.append("[OPEN_AI] end process, msgtype={}, query=[{}], time={}".format(msgtype, query, int(tdiff * 1000)))
         return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0, temperature=0.6) -> dict:

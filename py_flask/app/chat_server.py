@@ -148,6 +148,7 @@ class ChatServer:
             if self._debug_mode:
                 debug_request(request)
 
+            loginfo = []
             request_json = request.get_json()
             if len(request_json) == 0:
                 return jsonify({"code": 301, "msg": "empty request"})
@@ -160,6 +161,8 @@ class ChatServer:
                 #构建请求chatgpt的query
                 query = request_json["query"]
                 session_id = request_json["session_id"]
+                loginfo.append("raw_query={}".format(query))
+                loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
                 context = dict()
@@ -167,6 +170,7 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 response = self._bot.reply('Determine if the following content is a drawing request, just answer me YES or NO:' + query, context)
                 msgtype = "IMAGE_SD" if response == "YES" else "TEXT"
+                loginfo.append("msgtype={}".format(msgtype))
 
                 response = None
                 if msgtype == "IMAGE_SD" :
@@ -174,13 +178,13 @@ class ChatServer:
                     context = dict()
                     context['session_id'] = session_id
                     context['type'] = "TEXT_ONCE" #text without session
+                    context['loginfo'] = loginfo
                     #请求chatgpt进行翻译
                     response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request in English, answer me start with "Draw":' + query, context)
                     query = response.strip('"')
                     parts = query.split('Draw', 1)
                     query = query if len(parts) < 2 else parts[1].strip()
-
-                    logger.info("Image query:{}".format(query))
+                    loginfo.append("image_query={}".format(query))
 
                     height = request_json["height"]
                     width = request_json["width"]
@@ -191,9 +195,11 @@ class ChatServer:
                     context = dict()
                     context['session_id'] = session_id
                     context['type'] = msgtype
+                    context['loginfo'] = loginfo
                     #请求chatgpt
                     response = self._bot.reply(query, context)
 
+                logger.info(';'.join(loginfo))
                 # 返回结果到客户端
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
