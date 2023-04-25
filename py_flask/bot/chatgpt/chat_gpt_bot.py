@@ -58,8 +58,10 @@ class ChatGPTBot(Bot):
             return prefix+"请求已经达到最大次数，请明天再来..."
 
         btime = time.time()
+        #对于text once请求，要求他的结果尽量确定
         if msgtype == "TEXT" or msgtype == "TEXT_ONCE":
-            reply_content = self.reply_text(session, session_id, 0)
+            reply_content = self.reply_text(session, session_id, 0, 0) if msgtype == "TEXT_ONCE" \
+                else self.reply_text(session, session_id, 0, 0.6)
             if reply_content["completion_tokens"] > 0:
                 self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
 
@@ -73,7 +75,7 @@ class ChatGPTBot(Bot):
         logger.info("[OPEN_AI] end process query={}, time={}".format(query, int(tdiff * 1000)))
         return reply_content["content"]
 
-    def reply_text(self, session, session_id, retry_count=0) -> dict:
+    def reply_text(self, session, session_id, retry_count=0, temperature=0.6) -> dict:
         '''
         call openai's ChatCompletion to get the answer
         :param session: a conversation session
@@ -86,7 +88,7 @@ class ChatGPTBot(Bot):
             response = openai.ChatCompletion.create(
                 model= get_config().gpt_model,  # 对话模型的名称
                 messages=session,
-                temperature=0.6,  # 值在[0,1]之间，越大表示回复越具有不确定性
+                temperature=temperature,  # 值在[0,1]之间，越大表示回复越具有不确定性
                 #max_tokens=4096,  # 回复最大的字符数
                 top_p=1,
                 frequency_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
