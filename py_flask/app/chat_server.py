@@ -206,6 +206,7 @@ class ChatServer:
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
                 traceback.print_exc()
+                logger.info("end process, {}".format('; '.join(loginfo)))
                 return jsonify({"code": 302, "msg": "internal error"})
 
         @self._app.route("/openai/session/wechat/chat-completion", methods=["GET"])
