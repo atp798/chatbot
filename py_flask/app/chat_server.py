@@ -163,6 +163,7 @@ class ChatServer:
                 session_id = request_json["session_id"]
                 loginfo.append("raw_query=[{}]".format(query))
                 loginfo.append("session_id={}".format(session_id))
+                logger.info('begin process, {}'.format('; '.join(loginfo)))
 
                 #意图判断
                 context = dict()
