@@ -74,7 +74,7 @@ class ChatGPTBot(Bot):
             reply_content = self.reply_image_rawdata(query)
 
         tdiff = time.time() - btime
-        loginfo.append("[OPEN_AI] end process, msgtype={}, query=[{}], time={}".format(msgtype, query, int(tdiff * 1000)))
+        loginfo.append("openai_query=[{}], msgtype={}, time={}".format(query, msgtype, int(tdiff * 1000)))
         return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0, temperature=0.6) -> dict:

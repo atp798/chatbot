@@ -161,7 +161,7 @@ class ChatServer:
                 #构建请求chatgpt的query
                 query = request_json["query"]
                 session_id = request_json["session_id"]
-                loginfo.append("raw_query={}".format(query))
+                loginfo.append("raw_query=[{}]".format(query))
                 loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
@@ -184,7 +184,7 @@ class ChatServer:
                     query = response.strip('"')
                     parts = query.split('Draw', 1)
                     query = query if len(parts) < 2 else parts[1].strip()
-                    loginfo.append("image_query={}".format(query))
+                    loginfo.append("image_query=[{}]".format(query))
 
                     height = request_json["height"]
                     width = request_json["width"]
@@ -199,7 +199,7 @@ class ChatServer:
                     #请求chatgpt
                     response = self._bot.reply(query, context)
 
-                logger.info(';'.join(loginfo))
+                logger.info('; '.join(loginfo))
                 # 返回结果到客户端
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
