@@ -234,7 +234,8 @@ class ChatServer:
                 "steps": steps,
                 "restore_faces": True,
                 "sampler_name": "DPM++ 2M Karras",
-                "sd_model_checkpoint": "camelliamix_25d_v10.safetensors"
+                "sd_model_checkpoint": "camelliamix_25d_v10.safetensors",
+                "cfg_scale": 7
             }
 
             res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})
