@@ -227,7 +227,7 @@ class ChatServer:
         def request_sd_image(prompt, height, width, steps):
             url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
             body = {
-                "prompt": prompt,
+                "prompt": prompt + ",(masterpiece:1.2, best quality),((iphone wallpaper)),4K,8K,high quality",
                 "negativePrompt": "(multi hands),(naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
                 "height": 768,
                 "width": 512,
