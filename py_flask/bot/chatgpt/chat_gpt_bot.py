@@ -45,19 +45,16 @@ class ChatGPTBot(Bot):
             context['loginfo'] = []
         loginfo = context.get('loginfo')
 
-        session_id = context.get('session_id')
+        session_id = context.get('session_id', None)
+        if session_id is None:
+            return "Invalid session id"
         if query == self._clear_memory_commands:
             self._session.clear_session(session_id)
-            return '会话已清除'
-        if query == self._clear_all_memory_commands:
-            self._session.clear_all_session()
-            return '所有人会话历史已清除'
+            return 'memory cleared'
 
         session = self._session.build_session_query(query, session_id, msgtype) 
         if session is None:
-            prefix = "文字对话" if msgtype == "TEXT" else ""
-            prefix = "画图对话" if msgtype == "IMAGE" else ""
-            return prefix+"请求已经达到最大次数，请明天再来..."
+            return "Build session failed"
 
         btime = time.time()
         #对于text once请求，要求他的结果尽量确定
@@ -105,24 +102,24 @@ class ChatGPTBot(Bot):
             logger.warn(e)
             if retry_count < 1:
                 time.sleep(5)
-                logger.warn("[OPEN_AI] RateLimit exceed, 第{}次重试".format(retry_count + 1))
+                logger.warn("[OPEN_AI] RateLimit exceed, {} times retry".format(retry_count + 1))
                 return self.reply_text(session, session_id, retry_count + 1)
             else:
-                return {"completion_tokens": 0, "content": "提问太快啦，请休息一下再问我吧"}
+                return {"completion_tokens": 0, "content": "you ask too fast, please wait a moment"}
         except openai.error.APIConnectionError as e:
             # api connection exception
             logger.warn(e)
             logger.warn("[OPEN_AI] APIConnection failed")
-            return {"completion_tokens": 0, "content": "我连接不到你的网络"}
+            return {"completion_tokens": 0, "content": "cannot connect to openai"}
         except openai.error.Timeout as e:
             logger.warn(e)
             logger.warn("[OPEN_AI] Timeout")
-            return {"completion_tokens": 0, "content": "我没有收到你的消息"}
+            return {"completion_tokens": 0, "content": "cannot receive openai response"}
         except Exception as e:
             # unknown exception
             logger.exception(e)
             Session.clear_session(session_id)
-            return {"completion_tokens": 0, "content": "请再问我一次吧"}
+            return {"completion_tokens": 0, "content": "unknown error, please ask again"}
 
     def reply_image(self, query, retry_count=0):
         try:
