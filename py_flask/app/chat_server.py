@@ -170,8 +170,8 @@ class ChatServer:
                 context['session_id'] = session_id
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
-                response = self._bot.reply('Determine if the following content is a drawing request, just answer me YES or NO:' + query, context)
-                msgtype = "IMAGE_SD" if response == "YES" else "TEXT"
+                response = self._bot.reply('Determine if the following content is a drawing request for 13 years old child, just answer me YES or NO:' + query, context)
+                msgtype = "IMAGE_SD" if response.startswith("YES") else "TEXT"
                 loginfo.append("msgtype={}".format(msgtype))
 
                 response = None
