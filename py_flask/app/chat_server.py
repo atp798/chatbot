@@ -176,7 +176,7 @@ class ChatServer:
                 res = response.strip().split('\n')
                 msgtype = "TEXT"
                 if len(res) == 2:
-                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else msgtype
+                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("YES" in res[1] or "UNKNOWN" in res[1]) else msgtype
                 loginfo.append("image_intent={}".format(res))
                 loginfo.append("msgtype={}".format(msgtype))
 
