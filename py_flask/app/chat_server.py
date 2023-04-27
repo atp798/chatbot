@@ -14,6 +14,8 @@ import requests
 import json
 import time
 from common import utils
+import re
+
 
 class ChatServer:
 
@@ -171,9 +173,9 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
-                    'I will show you a string below, tell me 1. If the content is a drawing request 2. If the content is appropriate for 15 years old. You must give me just 2 words answer, and each word must be in options [YES,NO,UNCERTAIN]:'
+                    'tell me 1. If the content below is a drawing request 2. If the content below is appropriate for 15 years old. You will return just 2 words, and each word must be in options "YES, NO, UNCERTAIN":'
                     + query, context)
-                res = response.strip().split(', ')
+                res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response)
                 msgtype = "TEXT"
                 if len(res) >= 2:
                     msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else msgtype
