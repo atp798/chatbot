@@ -170,7 +170,7 @@ class ChatServer:
                 context['session_id'] = session_id
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
-                response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 15 years old. Answer me with word in options "YES NO UNCERTAIN" as format "xx xx": ' + query, context)
+                response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 15 years old. Answer me with word in options [YES,NO,UNCERTAIN] and use format xx xx: ' + query, context)
                 res = response.strip().split(' ')
                 msgtype = "TEXT"
                 if len(res) == 2:

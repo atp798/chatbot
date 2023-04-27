@@ -50,7 +50,7 @@ class Session(object):
         ]
         '''
 
-        if msgtype == "TEXT_ONCE":
+        if msgtype == "TEXT_ONCE" or "TEXT":
             session = []
             user_item = {'role': 'user', 'content': query}
             session.append(user_item)

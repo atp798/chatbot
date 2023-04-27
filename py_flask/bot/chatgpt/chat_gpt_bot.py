@@ -61,12 +61,9 @@ class ChatGPTBot(Bot):
         elif msgtype == "TEXT":
                 reply_content = self.reply_text(session, session_id, 0, 0.6)
                 if reply_content["completion_tokens"] > 0:
-                    pass
-                    #self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
-
+                    self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
         elif msgtype == "IMAGE":
             reply_content = self.reply_image(query, 0)
-
         elif msgtype == "IMAGE_RAW":
             reply_content = self.reply_image_rawdata(query)
 
