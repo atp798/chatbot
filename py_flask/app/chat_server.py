@@ -174,10 +174,10 @@ class ChatServer:
 
                 response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 13 years old. Answer me just in one word in "YES NO UNKNOWN" as a list: ' + query, context)
                 res = response.strip().split('\n')
-                if len(res) != 2:
-                    msgtype = "TEXT"
-                else:
+                msgtype = "TEXT"
+                if len(res) == 2:
                     msgtype = "IMAGE_SD" if "YES" in res[0] and (not "NO" in res[1]) else msgtype
+                loginfo.append("image_intent={}".format(res))
                 loginfo.append("msgtype={}".format(msgtype))
 
                 response = None
