@@ -90,7 +90,8 @@ class ConfigParser:
         self.appid = self._json_config.get("appid")
         self.secret = self._json_config.get("secret")
         self.gpt_model = self._json_config.get("model")
-        self.open_wxmp = self._json_config.get("open_wxmp")
+        self.open_wxmp = self._json_config.get("open_wxmp", True)
+        self.max_token_size = self._json_config.get("max_token_size", 2048)
 
 
 config = ConfigParser()
