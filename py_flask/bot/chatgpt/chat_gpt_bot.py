@@ -57,9 +57,9 @@ class ChatGPTBot(Bot):
         btime = time.time()
         #对于text once请求，要求他的结果尽量确定
         if msgtype == "TEXT_ONCE":
-                self.reply_text(session, session_id, 0, 0.6)
+                reply_content = self.reply_text(session, session_id, 0, 0.6)
         elif msgtype == "TEXT":
-                self.reply_text(session, session_id, 0, 0.6)
+                reply_content = self.reply_text(session, session_id, 0, 0.6)
                 if reply_content["completion_tokens"] > 0:
                     self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
 
