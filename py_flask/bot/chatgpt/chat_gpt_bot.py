@@ -57,11 +57,12 @@ class ChatGPTBot(Bot):
         btime = time.time()
         #对于text once请求，要求他的结果尽量确定
         if msgtype == "TEXT_ONCE":
-                reply_content = self.reply_text(session, session_id, 0, 0.1)
+                reply_content = self.reply_text(session, session_id, 0, 0.4)
         elif msgtype == "TEXT":
                 reply_content = self.reply_text(session, session_id, 0, 0.6)
                 if reply_content["completion_tokens"] > 0:
-                    self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
+                    pass
+                    #self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
 
         elif msgtype == "IMAGE":
             reply_content = self.reply_image(query, 0)
@@ -70,7 +71,7 @@ class ChatGPTBot(Bot):
             reply_content = self.reply_image_rawdata(query)
 
         tdiff = time.time() - btime
-        loginfo.append("openai_query=[{}], msgtype={}, time={}".format(query, msgtype, int(tdiff * 1000)))
+        loginfo.append("openai_query=[{}], openai_msgtype={}, openai_time={}".format(query, msgtype, int(tdiff * 1000)))
         return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0, temperature=0.6) -> dict:

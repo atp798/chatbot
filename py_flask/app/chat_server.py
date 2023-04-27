@@ -167,7 +167,7 @@ class ChatServer:
                 logger.info('begin process, {}'.format('; '.join(loginfo)))
 
                 #意图判断
-                context = dict()
+                context = {}
                 context['session_id'] = session_id
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
@@ -203,7 +203,7 @@ class ChatServer:
                     response = "You requested inappropriate content to draw, please change a request."
                 #默认文字请求
                 else:
-                    context = dict()
+                    context = {}
                     context['session_id'] = session_id
                     context['type'] = msgtype
                     context['loginfo'] = loginfo
