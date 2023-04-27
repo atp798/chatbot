@@ -164,7 +164,6 @@ class ChatServer:
                 session_id = request_json["session_id"]
                 loginfo.append("raw_query=[{}]".format(query))
                 loginfo.append("session_id={}".format(session_id))
-                logger.info('begin process, {}'.format('; '.join(loginfo)))
 
                 #意图判断
                 context = {}
@@ -179,6 +178,7 @@ class ChatServer:
                     msgtype = "IMAGE_INAPPROPRIATE" if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
                 loginfo.append("image_intent={}".format(res))
                 loginfo.append("msgtype={}".format(msgtype))
+                logger.info('begin process, {}'.format('; '.join(loginfo)))
 
                 response = None
                 if msgtype == "IMAGE_SD" :
