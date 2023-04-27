@@ -172,11 +172,12 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
 
-                response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 13 years old. Answer me just in one word in "YES NO UNKNOWN" as a list: ' + query, context)
+                response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 13 years old. Answer me just in one word in "YES NO UNCERTAIN" as a list: ' + query, context)
                 res = response.strip().split('\n')
                 msgtype = "TEXT"
                 if len(res) == 2:
-                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("YES" in res[1] or "UNKNOWN" in res[1]) else msgtype
+                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else msgtype
+                    msgtype = "IMAGE_INAPPROPRIATE" if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
                 loginfo.append("image_intent={}".format(res))
                 loginfo.append("msgtype={}".format(msgtype))
 
@@ -199,7 +200,10 @@ class ChatServer:
                     steps = request_json["steps"]
                     #请求Stable Diffusion
                     response = request_sd_image(query, height, width, steps)
-                elif msgtype == "TEXT":
+                elif msgtype == "IMAGE_INAPPROPRIATE":
+                    response = "You requested inappropriate content to draw, please change a request."
+                #默认文字请求
+                else:
                     context = dict()
                     context['session_id'] = session_id
                     context['type'] = msgtype
