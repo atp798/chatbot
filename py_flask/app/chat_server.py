@@ -176,10 +176,6 @@ class ChatServer:
                 msgtype = "IMAGE_SD" if response.startswith("YES") else "TEXT"
                 loginfo.append("msgtype={}".format(msgtype))
 
-                if response.startswith("UNKNOWN"):
-                    logger.info("end process, {}".format('; '.join(loginfo)))
-                    return jsonify({"code": 200, "msg": "success", "data": "your question is inappropriate, please change a question", "msgtype": msgtype})
-
                 response = None
                 if msgtype == "IMAGE_SD" :
                     #如果是绘画意图，则翻译成英语
