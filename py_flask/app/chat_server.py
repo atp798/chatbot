@@ -170,10 +170,10 @@ class ChatServer:
                 context['session_id'] = session_id
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
-                response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 15 years old. Answer me with word in options [YES,NO,UNCERTAIN] and use format xx xx: ' + query, context)
+                response = self._bot.reply('Tell me: 1. If the content below is a drawing request; 2. If the content is appropriate for a 15 years old. Answer me with word in options [YES,NO,UNCERTAIN] and use format [xx,xx]:' + query, context)
                 res = response.strip().split(' ')
                 msgtype = "TEXT"
-                if len(res) == 2:
+                if len(res) >= 2:
                     msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else msgtype
                     msgtype = "IMAGE_INAPPROPRIATE" if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
                 loginfo.append("image_intent={}".format(res))
