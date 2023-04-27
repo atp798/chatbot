@@ -172,9 +172,13 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
 
-                response = self._bot.reply('Determine if the following content is a drawing request for 13 years old child, just answer me YES or NO:' + query, context)
+                response = self._bot.reply('tell me if the content below is a drawing request and is appropriate for a 13 year old, answer me just in one word in "YES NO UNKNOWN" without any explanation:' + query, context)
                 msgtype = "IMAGE_SD" if response.startswith("YES") else "TEXT"
                 loginfo.append("msgtype={}".format(msgtype))
+
+                if response.startswith("UNKNOWN"):
+                    logger.info("end process, {}".format('; '.join(loginfo)))
+                    return jsonify({"code": 200, "msg": "success", "data": "your question is inappropriate, please change a question", "msgtype": msgtype})
 
                 response = None
                 if msgtype == "IMAGE_SD" :
