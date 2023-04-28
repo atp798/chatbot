@@ -174,7 +174,7 @@ class ChatServer:
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
                     'The request is: "' + query + '". ' +
-                    'Tell me: 1.if the request is a drawing request; 2.if the request is appropriate for 15 years old. Answer me in just two words "YES NO UNCERTAIN".'
+                    'Tell me if the request is a drawing request and if the request is appropriate for 15 years old. Give me two answers in options "YES NO UNCERTAIN".'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response)
                 msgtype = "TEXT"
