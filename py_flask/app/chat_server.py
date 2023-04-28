@@ -180,6 +180,7 @@ class ChatServer:
                 if len(res) >= 2:
                     msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else msgtype
                     msgtype = "IMAGE_INAPPROPRIATE" if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
+                loginfo.append("image_intent_res={}".format(response))
                 loginfo.append("image_intent={}".format(res))
                 loginfo.append("msgtype={}".format(msgtype))
                 logger.info('begin process, {}'.format('; '.join(loginfo)))
