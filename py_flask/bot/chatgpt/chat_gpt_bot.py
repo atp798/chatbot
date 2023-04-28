@@ -57,9 +57,9 @@ class ChatGPTBot(Bot):
         btime = time.time()
         #对于text once请求，要求他的结果尽量确定
         if msgtype == "TEXT_ONCE":
-                reply_content = self.reply_text(session, session_id, 0, 0.6)
+                reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
         elif msgtype == "TEXT":
-                reply_content = self.reply_text(session, session_id, 0, 0.6)
+                reply_content = self.reply_text(session, session_id, 0)
                 if reply_content["completion_tokens"] > 0:
                     self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
         elif msgtype == "IMAGE":
@@ -71,7 +71,7 @@ class ChatGPTBot(Bot):
         loginfo.append("openai_query=[{}], openai_msgtype={}, openai_time={}".format(query, msgtype, int(tdiff * 1000)))
         return reply_content["content"]
 
-    def reply_text(self, session, session_id, retry_count=0, temperature=0.6) -> dict:
+    def reply_text(self, session, session_id, retry_count=0, strict_completion=False) -> dict:
         '''
         call openai's ChatCompletion to get the answer
         :param session: a conversation session
@@ -80,15 +80,25 @@ class ChatGPTBot(Bot):
         :return: {}
         '''
         try:
-            response = openai.ChatCompletion.create(
+            if strict_completion:
+                response = openai.ChatCompletion.create(
                 model= get_config().gpt_model,  # 对话模型的名称
                 messages=session,
-                temperature=temperature,  # 值在[0,1]之间，越大表示回复越具有不确定性
+                temperature=0.01,  # 值在[0,1]之间，越大表示回复越具有不确定性
+                top_p=1,
+                frequency_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
+                presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
+                )
+            else:
+                response = openai.ChatCompletion.create(
+                model= get_config().gpt_model,  # 对话模型的名称
+                messages=session,
+                temperature=0.6,  # 值在[0,1]之间，越大表示回复越具有不确定性
                 #max_tokens=4096,  # 回复最大的字符数
                 top_p=1,
                 frequency_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
                 presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
-            )
+                )
             return {
                 "total_tokens": response["usage"]["total_tokens"],
                 "completion_tokens": response["usage"]["completion_tokens"],
