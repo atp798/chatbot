@@ -173,8 +173,8 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
-                    'The request is: "' + query + '".' +
-                    'Tell me if the request is a drawing request and if the request is appropriate for 15 years old. Answer me in just two words "YES NO UNCERTAIN".'
+                    'The request is: "' + query + '". ' +
+                    'Tell me: 1.if the request is a drawing request; 2.if the request is appropriate for 15 years old. Answer me in just two words "YES NO UNCERTAIN".'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response)
                 msgtype = "TEXT"
@@ -195,7 +195,7 @@ class ChatServer:
                     context['loginfo'] = loginfo
                     #请求chatgpt进行翻译
                     response = self._bot.reply(
-                        'The request is: "' + query + '".' +
+                        'The request is: "' + query + '". ' +
                         'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'
                         , context)
                     query = response.strip('"')
