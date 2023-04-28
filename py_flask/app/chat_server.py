@@ -174,7 +174,7 @@ class ChatServer:
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
                     '给你一个句子"' + query + '"，' + 
-                    '你将作为一个文本分类器回答我1、这个句子是否只是一个画图的请求？2、这个请求是否适合15岁的人群。给我两个答案，每个答案都在 YES NO UNCERTAIN 选项中。'
+                    '你将作为一个文本分类器回答我1、这个句子是否只是一个画图的请求？2、这个请求是否适合15岁的人群。给我两个答案，每个答案不超过一个单词，而且每个答案都在"YES NO UNCERTAIN"选项中。'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response)
                 msgtype = "TEXT"
