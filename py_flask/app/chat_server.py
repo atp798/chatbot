@@ -173,7 +173,7 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
-                    'tell me 1. If the content below is a drawing request 2. If the content below is appropriate for 15 years old. You will return just 2 words, and each word must be in options "YES, NO, UNCERTAIN":'
+                    'tell me 1. If the content below is a drawing request 2. If the content below is appropriate for 15 years old. You will return just 2 words, and each word must be in options "YES, NO, UNCERTAIN":  '
                     + query, context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response)
                 msgtype = "TEXT"
@@ -193,7 +193,7 @@ class ChatServer:
                     context['type'] = "TEXT_ONCE" #text without session
                     context['loginfo'] = loginfo
                     #请求chatgpt进行翻译
-                    response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request in English, answer me start with "Draw":' + query, context)
+                    response = self._bot.reply('This is a request for a drawing AI, tell me what needs to be drawn in the request in English, answer me start with "Draw":  ' + query, context)
                     query = response.strip('"')
                     parts = query.split('Draw', 1)
                     query = query if len(parts) < 2 else parts[1].strip()
