@@ -50,11 +50,13 @@ class Session(object):
         ]
         '''
 
+        '''
         if msgtype == "TEXT_ONCE":
             session = []
             user_item = {'role': 'user', 'content': query}
             session.append(user_item)
             return session
+        '''
 
         session = self._all_sessions.get(session_id, [])
         session_record = self._all_sessions.get(session_id + "_record", [])
