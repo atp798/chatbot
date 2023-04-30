@@ -173,8 +173,8 @@ class ChatServer:
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
-                    '给你一个句子"' + query + '"，' + 
-                    '回答我1、这个句子是否只是一个画图的请求？2、这个请求是否适合15岁的人群。给我两个答案，每个答案不超过一个单词，而且每个答案都在"YES NO UNCERTAIN"选项中。'
+                    'Given a sentence "' + query + '"，' + 
+                    'please answer the following two questions in English: 1. Is this sentence only a request for drawing? 2. Is this request suitable for the age group of 15? Provide two answers, each answer should not exceed one word, and the answers should be either YES, NO, or UNCERTAIN.'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
                 msgtype = "TEXT"
