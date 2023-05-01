@@ -174,7 +174,7 @@ class ChatServer:
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
                     'Given a sentence "' + query + '"，' + 
-                    'please answer the following two questions in English: 1. Is this sentence only a request for drawing? 2. Is this request suitable for the age group of 15? Provide two answers, each answer should not exceed one word, and the answers should be either YES, NO, or UNCERTAIN.'
+                    'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for the age group of 15? Return two answers, each answer should not exceed one word, and the answer should be either YES, NO, or UNCERTAIN'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
 
