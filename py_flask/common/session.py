@@ -50,7 +50,6 @@ class Session(object):
         ]
         '''
 
-        logger.info("tan debug msgtype={}".format(msgtype))
         if (msgtype == "TEXT_ONCE"):
             return [{'role': 'user', 'content': query}]
 
