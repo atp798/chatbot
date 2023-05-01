@@ -51,23 +51,23 @@ class Session(object):
         '''
 
         session = [] if msgtype == "TEXT_ONCE" else self._all_sessions.get(session_id, []) 
-        session_record = self._all_sessions.get(session_id + "_record", [])
+        #session_record = self._all_sessions.get(session_id + "_record", [])
         #is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record, msgtype)
-        is_limited = False
-        if is_limited: #没有限额了
-            return None
+        #is_limited = False
+        #if is_limited: #没有限额了
+            #return None
 
         if len(session) == 0:
             system_prompt = self._character_desc
             system_item = {'role': 'system', 'content': system_prompt}
             session.append(system_item)
             self._all_sessions[session_id] = session
-            self._all_sessions[session_id + "_record"] = []
+            #self._all_sessions[session_id + "_record"] = []
         user_item = {'role': 'user', 'content': query}
         session.append(user_item)
 
         ss_record = {"timestamp": int(time.time()), "type": msgtype}
-        session_record.append(ss_record)
+        #session_record.append(ss_record)
 
         return session
 

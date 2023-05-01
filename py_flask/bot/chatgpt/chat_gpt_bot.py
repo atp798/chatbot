@@ -81,15 +81,17 @@ class ChatGPTBot(Bot):
         '''
         try:
             if strict_completion:
+                logger.info("tandebug strict_completion, session={}".format(session))
                 response = openai.ChatCompletion.create(
                 model= get_config().gpt_model,  # 对话模型的名称
                 messages=session,
                 temperature=1,  # 值在[0,1]之间，越大表示回复越具有不确定性
-                top_p=0.4,
+                top_p=1,
                 frequency_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
                 presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
                 )
             else:
+                logger.info("tandebug , session={}".format(session))
                 response = openai.ChatCompletion.create(
                 model= get_config().gpt_model,  # 对话模型的名称
                 messages=session,
