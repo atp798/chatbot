@@ -170,11 +170,11 @@ class ChatServer:
                 #意图判断
                 context = {}
                 context['session_id'] = session_id
-                context['type'] = "TEXT_ONCE" #text without session
+                context['type'] = "TEXT" #text without session
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
                     'Given a sentence "' + query + '"，' + 
-                    'please answer the following two questions in English: 1. Is this sentence a request for drawing? 2. Is this request suitable for the age group of 15? Provide two answers, each answer should not exceed one word, and the answers should be either YES, NO, or UNCERTAIN.'
+                    'please answer the following two questions in English: 1. Is this sentence only a request for drawing? 2. Is this request suitable for the age group of 15? Provide two answers, each answer should not exceed one word, and the answers should be either YES, NO, or UNCERTAIN.'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
 
