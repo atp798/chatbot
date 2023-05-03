@@ -210,6 +210,7 @@ class ChatServer:
                     #请求Stable Diffusion
                     response = request_sd_image(query, height, width, steps)
                 elif msgtype == "IMAGE_INAPPROPRIATE":
+                    msgtype = "TEXT"
                     response = "You requested inappropriate content to draw, please change a request."
                 #默认文字请求
                 else:
