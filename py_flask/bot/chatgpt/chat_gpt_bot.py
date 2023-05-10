@@ -175,12 +175,16 @@ class ChatGPTBot(Bot):
         return {"completion_images": 1, "content": imgcontent}
     
     def request_sd_image(self, prompt, context):
-        loginfo = context.get('loginfo')
+        loginfo = context.get('loginfo', [])
+
         #请求chatgpt进行翻译
+        context_tmp = {}
+        context_tmp['session_id'] = context.get("session_id")
+        context_tmp['type'] = "TEXT_ONCE" #text without session
         response = self.reply(
             'The request is: "' + prompt + '". ' +
             'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'
-            , context)
+            , context_tmp)
         prompt = response.strip('"')
         parts = prompt.split('Draw', 1)
         prompt = prompt if len(parts) < 2 else parts[1].strip()
