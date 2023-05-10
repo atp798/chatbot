@@ -55,7 +55,7 @@ def process_wxmp_request(request_json, bot):
             , context_tmp)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
         if len(res) >= 2:
-            msg_type = "IMAGE_SD" if ("YES" in res[0]) and ("YES" in res[1]) else "TEXT"
+            msg_type = "IMAGE_SD" if ("YES" in res[0]) and (not "NO" in res[1]) else "TEXT"
         loginfo.append("res={}, msgtype={}".format(res, msg_type))
 
     context = {}
