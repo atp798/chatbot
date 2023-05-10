@@ -9,6 +9,8 @@ import requests
 from flask import jsonify
 import traceback
 from wxmp.wxmp_access_token import get_wxmp_token
+import io
+import base64
 
 def do_post_action(url="", body={}, retry=0):
     try:
@@ -74,7 +76,7 @@ def post_img_respons2wxmp_SD(image_base64=None, touser=None, retry=0):
     try:
         local_path = '/var/tmp/' + touser + '_' + str(int(time.time() * 1000)) + '.png'
         with open(local_path, "wb") as f:
-            f.write(image_base64.encode('utf-8'))
+            f.write(io.BytesIO(base64.b64decode(image_base64)))
         media_id = img_upload(local_path)
         delete_image(local_path)
     except Exception as e:
