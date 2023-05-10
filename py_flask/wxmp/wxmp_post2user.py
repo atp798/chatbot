@@ -67,6 +67,30 @@ def post_img_respons2wxmp(image_url=None, touser=None, retry=0):
     }
     return do_post_action(url=url, body=body, retry=5)
 
+def post_img_respons2wxmp_SD(image_base64=None, touser=None, retry=0):
+    if not(image_base64 and touser):
+        return False
+    access_token = get_wxmp_token()
+    try:
+        local_path = '/var/tmp/' + touser + '_' + str(int(time.time() * 1000)) + '.png'
+        with open(local_path, "wb") as f:
+            f.write(image_base64)
+        media_id = img_upload(local_path)
+        delete_image(local_path)
+    except Exception as e:
+        logger.info('error update image to wx:'.format(e))
+        return False
+
+    url='https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=' + access_token
+    body = {
+        "touser": touser,
+        "msgtype": "image",
+        "image": {
+            "media_id": media_id
+        }
+    }
+    return do_post_action(url=url, body=body, retry=5)
+
 def img_upload(local_path):
     access_token = get_wxmp_token()
     url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&type=%s" % (access_token, "image")

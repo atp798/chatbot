@@ -11,6 +11,7 @@ import requests
 import io
 from config import get_config
 import base64
+import json
 
 
 # OpenAI对话模型API (可用)
@@ -43,29 +44,32 @@ class ChatGPTBot(Bot):
             context['loginfo'] = []
         loginfo = context.get('loginfo')
 
-        session_id = context.get('session_id', None)
-        if session_id is None:
-            return "Invalid session id"
-        if query == self._clear_memory_commands:
-            self._session.clear_session(session_id)
-            return 'memory cleared'
-
-        session = self._session.build_session_query(query, session_id, msgtype) 
-        if session is None:
-            return "Build session failed"
+        #问答类的，需要组织session，画图的暂时不需要
+        if (msgtype == "TEXT" or msgtype == "TEXT_ONCE"):
+            session_id = context.get('session_id', None)
+            if session_id is None:
+                return "Invalid session id"
+            if query == self._clear_memory_commands:
+                self._session.clear_session(session_id)
+                return 'memory cleared'
+            session = self._session.build_session_query(query, session_id, msgtype) 
+            if session is None:
+                return "Build session failed"
 
         btime = time.time()
-        #对于text once请求，要求他的结果尽量确定
         if msgtype == "TEXT_ONCE":
-                reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
+            #对于text once请求，要求他的结果尽量确定，并且不污染session
+            reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
         elif msgtype == "TEXT":
-                reply_content = self.reply_text(session, session_id, 0)
-                if reply_content["completion_tokens"] > 0:
-                    self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
+            reply_content = self.reply_text(session, session_id, 0)
+            if reply_content["completion_tokens"] > 0:
+                self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
         elif msgtype == "IMAGE":
             reply_content = self.reply_image(query, 0)
         elif msgtype == "IMAGE_RAW":
             reply_content = self.reply_image_rawdata(query)
+        elif msgtype == "IMAGE_SD":
+            reply_content = {"content": self.request_sd_image(query, context)} 
 
         tdiff = time.time() - btime
         loginfo.append("openai_query=[{}], openai_msgtype={}, openai_time={}".format(query, msgtype, int(tdiff * 1000)))
@@ -169,4 +173,35 @@ class ChatGPTBot(Bot):
 
         imgcontent = base64.b64encode(imgcontent).decode()
         return {"completion_images": 1, "content": imgcontent}
+    
+    def request_sd_image(self, prompt, context):
+        loginfo = context.get('loginfo')
+        #请求chatgpt进行翻译
+        response = self._bot.reply(
+            'The request is: "' + prompt + '". ' +
+            'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'
+            , context)
+        prompt = response.strip('"')
+        parts = prompt.split('Draw', 1)
+        prompt = prompt if len(parts) < 2 else parts[1].strip()
+        loginfo.append("image_query=[{}]".format(prompt))
+
+        height = context.get("height")
+        width = context.get("width")
+        steps = context.get("steps")
+        url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
+        body = {
+            "prompt": prompt + ",(masterpiece:1.2, best quality),((iphone wallpaper)),4K,8K,high quality",
+            "negativePrompt": "(multi hands),(naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
+            "height": 768,
+            "width": 512,
+            "steps": 20,
+            "restore_faces": True,
+            "sampler_name": "DPM++ 2M Karras",
+            "sd_model_checkpoint": "camelliamix_25d_v10.safetensors",
+            "cfg_scale": 7
+        }
+
+        res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})
+        return res.json()['images'][0]
 

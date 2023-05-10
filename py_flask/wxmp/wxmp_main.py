@@ -8,7 +8,8 @@ from common.log import logger
 from common.singleton import SingletonC
 from config import get_config
 import traceback
-from wxmp.wxmp_post2user import post_img_respons2wxmp, post_respons2wxmp
+import re
+from wxmp.wxmp_post2user import post_img_respons2wxmp, post_respons2wxmp, post_img_respons2wxmp_SD
 
 def process_wxmp_request(request_json, bot):
     #parameter constant
@@ -33,17 +34,33 @@ def process_wxmp_request(request_json, bot):
         logger.info("handler subscribe/unsubscribe reqeust error")
         return
 
+    loginfo = []
     session_id = request_json["FromUserName"]
     query = request_json["Content"]
+    loginfo.append("raw_query=[{}], session_id={}".format(query, session_id))
+    logger.info('begin process, {}'.format('; '.join(loginfo)))
 
     #标注请求类型，文字还是画图，有可能有更复杂的
-    context = dict()
-    context['session_id'] = session_id
     msg_type = request_json.get("MsgType", "TEXT").upper()
-    msg_type = "IMAGE" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
-    msg_type = "IMAGE" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
-    context['type'] = msg_type
+    msg_type = "IMAGE_SD" if any(item in {'画'} for item in query[:4]) else msg_type #对中文，前4个字包含画
+    msg_type = "IMAGE_SD" if any(item.lower() in {'draw'} for item in query.split(' ')[:4]) else msg_type #对英文，前4个词包含画
+    if msg_type == "IMAGE_SD":
+        #意图判断
+        context_tmp = {}
+        context_tmp['session_id'] = session_id
+        context_tmp['type'] = "TEXT_ONCE" #text without session
+        response = bot.reply(
+            'Given a sentence "' + query + '"，' + 
+            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for 18 years old? Return two answers, each answer should not exceed one word, and the answer should be either YES, NO, or UNCERTAIN'
+            , context_tmp)
+        res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
+        if len(res) >= 2:
+            msg_type = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else "TEXT"
+        loginfo.append("res={}, msgtype={}".format(res, msg_type))
 
+    context = {}
+    context['session_id'] = session_id
+    context['type'] = msg_type
     response = None
     retry = 3
     while retry > 0:
@@ -56,7 +73,6 @@ def process_wxmp_request(request_json, bot):
             continue
         if response:
             break
-    logger.info("end peocess request, ans:{}".format(response))
     toUserName = request_json["FromUserName"]
     #fromUserName = request_json["ToUserName"] 
     if not response:
@@ -64,10 +80,12 @@ def process_wxmp_request(request_json, bot):
 
     if context['type'] == "TEXT":
         post_respons2wxmp(response, toUserName)
-        return
-    if context['type'] == "IMAGE":
+    elif context['type'] == "IMAGE":
         post_img_respons2wxmp(response, toUserName)
-        return
+    elif context['type'] == "IMAGE_SD":
+        post_img_respons2wxmp_SD(response, toUserName)
+    logger.info("end process, {}".format('; '.join(loginfo)))
+    return
     
 
 def get_welcome_words():

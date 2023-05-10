@@ -189,26 +189,16 @@ class ChatServer:
 
                 response = None
                 if msgtype == "IMAGE_SD" :
-                    #如果是绘画意图，则翻译成英语
-                    context = dict()
+                    #如果是绘画意图，则翻译成英语,再请求sd
+                    context = {}
                     context['session_id'] = session_id
-                    context['type'] = "TEXT_ONCE" #text without session
+                    context['type'] = msgtype #text without session
                     context['loginfo'] = loginfo
-                    #请求chatgpt进行翻译
-                    response = self._bot.reply(
-                        'The request is: "' + query + '". ' +
-                        'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'
-                        , context)
-                    query = response.strip('"')
-                    parts = query.split('Draw', 1)
-                    query = query if len(parts) < 2 else parts[1].strip()
-                    loginfo.append("image_query=[{}]".format(query))
-
-                    height = request_json["height"]
-                    width = request_json["width"]
-                    steps = request_json["steps"]
+                    context['height'] = request_json["height"]
+                    context['width'] = request_json["width"]
+                    context['steps'] = request_json["steps"]
                     #请求Stable Diffusion
-                    response = request_sd_image(query, height, width, steps)
+                    response = self._bot.reply(query, context)
                 elif msgtype == "IMAGE_INAPPROPRIATE":
                     msgtype = "TEXT"
                     response = "You requested inappropriate content to draw, please change a request."
@@ -244,22 +234,6 @@ class ChatServer:
             threading.Thread(target=process_wxmp_request, args=(request_json, self._bot)).start()
             return "success", 200
         
-        def request_sd_image(prompt, height, width, steps):
-            url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
-            body = {
-                "prompt": prompt + ",(masterpiece:1.2, best quality),((iphone wallpaper)),4K,8K,high quality",
-                "negativePrompt": "(multi hands),(naked:1.1),(nsfw:1.1),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
-                "height": 768,
-                "width": 512,
-                "steps": steps,
-                "restore_faces": True,
-                "sampler_name": "DPM++ 2M Karras",
-                "sd_model_checkpoint": "camelliamix_25d_v10.safetensors",
-                "cfg_scale": 7
-            }
-
-            res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})
-            return res.json()['images'][0]
     def run(self):
         self._app.run(host=self._ip_addr,
                       port=self._port,
