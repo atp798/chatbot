@@ -208,6 +208,6 @@ class ChatGPTBot(Bot):
 
         res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})
         res = res.json()['images'][0]
-        res = base64.b64encode(res).decode()
+        #res = base64.b64encode(res).decode()
         return res
 
