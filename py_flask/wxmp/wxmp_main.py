@@ -38,6 +38,7 @@ def process_wxmp_request(request_json, bot):
     session_id = request_json["FromUserName"]
     query = request_json["Content"]
     loginfo.append("raw_query=[{}], session_id={}".format(query, session_id))
+    toUserName = request_json["FromUserName"]
 
     #标注请求类型，文字还是画图，有可能有更复杂的
     msg_type = request_json.get("MsgType", "TEXT").upper()
@@ -76,7 +77,6 @@ def process_wxmp_request(request_json, bot):
             continue
         if response:
             break
-    toUserName = request_json["FromUserName"]
     #fromUserName = request_json["ToUserName"] 
     if not response:
         response = "发生未知错误，系统正在修复中，请稍后重试..."
