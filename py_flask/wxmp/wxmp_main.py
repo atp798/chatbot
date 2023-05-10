@@ -50,12 +50,14 @@ def process_wxmp_request(request_json, bot):
         context_tmp['type'] = "TEXT" #text without session
         response = bot.reply(
             'Given a sentence "' + query + '"，' + 
-            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 10 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
+            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 12 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
             , context_tmp)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
         if len(res) >= 2:
             msg_type = "IMAGE_SD" if ("YES" in res[0]) and (not "NO" in res[1]) else "TEXT"
         loginfo.append("res={}, msgtype={}".format(res, msg_type))
+        if msg_type != "IMAGE_SD": #说明不符合绘画需求
+            post_respons2wxmp("您的绘画请求中包含不适合青少年的内容，讲以文字问答形式回答您的问题。", toUserName)
 
     logger.info('begin process, {}'.format('; '.join(loginfo)))
     context = {}
