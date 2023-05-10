@@ -70,6 +70,7 @@ def process_wxmp_request(request_json, bot):
             # 从响应中获取结果
         except Exception as error:
             logger.info("get openai err=".format(error))
+            traceback.print_exc()
             continue
         if response:
             break
