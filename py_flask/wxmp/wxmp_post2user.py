@@ -78,6 +78,7 @@ def post_img_respons2wxmp_SD(image_base64=None, touser=None, retry=0):
         media_id = img_upload(local_path)
         delete_image(local_path)
     except Exception as e:
+        traceback.print_exc()
         logger.info('error update image to wx:'.format(e))
         return False
 
