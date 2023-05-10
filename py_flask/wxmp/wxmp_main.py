@@ -38,7 +38,6 @@ def process_wxmp_request(request_json, bot):
     session_id = request_json["FromUserName"]
     query = request_json["Content"]
     loginfo.append("raw_query=[{}], session_id={}".format(query, session_id))
-    logger.info('begin process, {}'.format('; '.join(loginfo)))
 
     #标注请求类型，文字还是画图，有可能有更复杂的
     msg_type = request_json.get("MsgType", "TEXT").upper()
@@ -51,13 +50,14 @@ def process_wxmp_request(request_json, bot):
         context_tmp['type'] = "TEXT" #text without session
         response = bot.reply(
             'Given a sentence "' + query + '"，' + 
-            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 10 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES, NO, or UNCERTAIN'
+            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 10 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
             , context_tmp)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
         if len(res) >= 2:
             msg_type = "IMAGE_SD" if ("YES" in res[0]) and (not "NO" in res[1]) else "TEXT"
         loginfo.append("res={}, msgtype={}".format(res, msg_type))
 
+    logger.info('begin process, {}'.format('; '.join(loginfo)))
     context = {}
     context['session_id'] = session_id
     context['type'] = msg_type
