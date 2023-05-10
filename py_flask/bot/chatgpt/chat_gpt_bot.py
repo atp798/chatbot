@@ -177,7 +177,7 @@ class ChatGPTBot(Bot):
     def request_sd_image(self, prompt, context):
         loginfo = context.get('loginfo')
         #请求chatgpt进行翻译
-        response = self._bot.reply(
+        response = self.reply(
             'The request is: "' + prompt + '". ' +
             'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'
             , context)
