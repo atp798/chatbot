@@ -37,7 +37,7 @@ def process_wxmp_request(request_json, bot):
 
     session_id = request_json["FromUserName"]
     query = request_json["Content"]
-    loginfo.append("raw_query=[{}], session_id={}".format(query, session_id))
+    loginfo.append("session_id={}".format(session_id))
     toUserName = request_json["FromUserName"]
 
     #标注请求类型，文字还是画图，有可能有更复杂的
