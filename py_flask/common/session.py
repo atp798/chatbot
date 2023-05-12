@@ -54,9 +54,6 @@ class Session(object):
         if len(query) > self._max_tokens * 0.9:
             return None
 
-        if (msgtype == "TEXT_ONCE"):
-            return [{'role': 'user', 'content': query}]
-
         session = self._all_sessions.get(session_id, []) 
         #session_record = self._all_sessions.get(session_id + "_record", [])
         #is_limited = self.wxmp_request_limiter.do_limit(session_id, session_record, msgtype)
@@ -77,6 +74,16 @@ class Session(object):
         #session_record.append(ss_record)
 
         return session
+
+    def save_session_by_count(self, answer, session_id, count):
+        session = self._all_sessions.get(session_id)
+        if session:
+            gpt_item = {'role': 'assistant', 'content': answer}
+            session.append(gpt_item)
+            while(len(session) > count):
+                session.pop(1)
+                session.pop(1)
+        return
 
     def save_session(self, answer, session_id, total_tokens):
         session = self._all_sessions.get(session_id)

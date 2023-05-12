@@ -45,7 +45,7 @@ class ChatGPTBot(Bot):
         loginfo = context.get('loginfo')
 
         #问答类的，需要组织session，画图的暂时不需要
-        if (msgtype == "TEXT" or msgtype == "TEXT_ONCE"):
+        if msgtype == "TEXT" or msgtype == "TEXT_ONCE":
             session_id = context.get('session_id', None)
             if session_id is None:
                 return "Invalid session id"
@@ -60,6 +60,8 @@ class ChatGPTBot(Bot):
         if msgtype == "TEXT_ONCE":
             #对于text once请求，要求他的结果尽量确定，并且不污染session
             reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
+            if reply_content["completion_tokens"] > 0:
+                self._session.save_session_by_count(reply_content["content"], session_id, 8)
         elif msgtype == "TEXT":
             reply_content = self.reply_text(session, session_id, 0)
             if reply_content["completion_tokens"] > 0:
@@ -89,8 +91,8 @@ class ChatGPTBot(Bot):
                 response = openai.ChatCompletion.create(
                 model= get_config().gpt_model,  # 对话模型的名称
                 messages=session,
-                temperature=0.6,  # 值在[0,1]之间，越大表示回复越具有不确定性
-                top_p=0.6,
+                temperature=0.2,  # 值在[0,1]之间，越大表示回复越具有不确定性
+                top_p=1,
                 frequency_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
                 presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容
                 )
@@ -179,7 +181,7 @@ class ChatGPTBot(Bot):
 
         #请求chatgpt进行翻译
         context_tmp = {}
-        context_tmp['session_id'] = context.get("session_id")
+        context_tmp['session_id'] = "GPT_PRO_TRANSLATE_BOT_001"
         context_tmp['type'] = "TEXT_ONCE" #text without session
         response = self.reply(
             'The request is: "' + prompt + '". ' +

@@ -164,13 +164,15 @@ class ChatServer:
                 #构建请求chatgpt的query
                 query = request_json["query"]
                 session_id = request_json["session_id"]
+                coutry_code = request_json.get("country_code", "")
+                loginfo.append("raw_request=[{}]".format(request_json))
                 loginfo.append("raw_query=[{}]".format(query))
                 loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
                 context = {}
-                context['session_id'] = session_id
-                context['type'] = "TEXT" #text without session
+                context['session_id'] = "GPT_PRO_INTENT_BOT_001"
+                context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
                     'Given a sentence "' + query + '"，' + 
