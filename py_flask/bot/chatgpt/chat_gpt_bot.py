@@ -54,7 +54,7 @@ class ChatGPTBot(Bot):
                 return 'memory cleared'
             session = self._session.build_session_query(query, session_id, msgtype) 
             if session is None:
-                return "Build session failed"
+                return "Build session failed, query is tooooo long"
 
         btime = time.time()
         if msgtype == "TEXT_ONCE":
