@@ -50,6 +50,10 @@ class Session(object):
         ]
         '''
 
+        #单次请求query不能太长
+        if len(query) > self._max_tokens * 0.9:
+            return None
+
         if (msgtype == "TEXT_ONCE"):
             return [{'role': 'user', 'content': query}]
 
