@@ -165,6 +165,7 @@ class ChatServer:
                 query = request_json["query"]
                 session_id = request_json["session_id"]
                 coutry_code = request_json.get("country_code", "")
+
                 loginfo.append("raw_request=[{}]".format(request_json))
                 loginfo.append("raw_query=[{}]".format(query))
                 loginfo.append("session_id={}".format(session_id))
@@ -176,13 +177,16 @@ class ChatServer:
                 context['loginfo'] = loginfo
                 response = self._bot.reply(
                     'Given a sentence "' + query + '"，' + 
-                    'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for 18 years old? Return two answers, each answer should not exceed one word, and the answer should be either YES, NO, or UNCERTAIN'
+                    'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for 18 years old? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
                     , context)
                 res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
 
                 msgtype = "TEXT"
                 if len(res) >= 2:
-                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("NO" not in res[1]) else msgtype
+                    if coutry_code.lower() != "cn": #国外放开黄反
+                        loginfo.append("open_hf=true")
+                        res[1] = "YES"
+                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("YES" in res[1]) else msgtype
                     msgtype = "IMAGE_INAPPROPRIATE" if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
                 #loginfo.append("image_intent_res={}".format(response))
                 loginfo.append("image_intent={}".format(res))
