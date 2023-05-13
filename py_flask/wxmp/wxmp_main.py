@@ -79,7 +79,8 @@ def process_wxmp_request(request_json, bot):
             break
     #fromUserName = request_json["ToUserName"] 
     if not response:
-        response = "发生未知错误，系统正在修复中，请稍后重试..."
+        response = "不好意思出错了，我正在自我修复中，请稍等片刻再使用"
+        bot.clear_session(session_id)
 
     if context['type'] == "TEXT":
         post_respons2wxmp(response, toUserName)

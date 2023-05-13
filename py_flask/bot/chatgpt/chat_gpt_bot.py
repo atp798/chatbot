@@ -28,6 +28,9 @@ class ChatGPTBot(Bot):
             self._tb4chatgpt = TokenBucket(config_parser.rate_limit_chatgpt)
         if len(config_parser.clear_memory_commands) > 0:
             self._clear_memory_commands = config_parser.clear_memory_commands
+            
+    def clear_session(self, session_id):
+        self._session.clear_session(session_id)
 
     def reply(self, query, context=None):
         # acquire reply content
