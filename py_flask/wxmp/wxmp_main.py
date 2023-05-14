@@ -79,7 +79,7 @@ def process_wxmp_request(request_json, bot):
             break
     #fromUserName = request_json["ToUserName"] 
     if not response:
-        response = "不好意思出错了，我正在自我修复中，请稍等片刻再使用"
+        response = "不好意思，tokens超限了我得重置下，你继续"
         bot.clear_session(session_id)
 
     if context['type'] == "TEXT":
