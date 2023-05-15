@@ -60,11 +60,13 @@ class ChatGPTBot(Bot):
             if session is None:
                 return "Build session failed, query is tooooo long"
 
+        logger.info("11111, msgtype={}, session={}".format(msgtype, session))
         btime = time.time()
         if msgtype == "TEXT_ONCE":
             #对于text once请求，要求他的结果尽量确定，并且不污染session
             reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
             if reply_content["completion_tokens"] > 0:
+                logger.info("22222, get to reply")
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 500)
         elif msgtype == "TEXT":
             reply_content = self.reply_text(session, session_id, 0)

@@ -16,7 +16,6 @@ class Session(object):
         else:
             self.system_prompt = system_prompt
 
-
     # 重置会话
     def reset(self):
         system_item = {"role": "system", "content": self.system_prompt}
@@ -55,7 +54,6 @@ class SessionManager(object):
 
 
         self.path = './session.data'
-
         self.load_sessions()
         threading.Thread(target=self.dump_sessions, daemon=True).start()
 
