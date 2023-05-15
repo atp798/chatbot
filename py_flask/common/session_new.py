@@ -82,7 +82,7 @@ class SessionManager(object):
         return session
 
     def session_query(self, query, session_id):
-        session = self.build_session(session_id, conf.get('character_desc'))
+        session = self.build_session(session_id, conf().get('character_desc'))
         session.add_query(query)
         try:
             max_tokens = conf().get("conversation_max_tokens", 1000)
