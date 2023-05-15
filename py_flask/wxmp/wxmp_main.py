@@ -59,7 +59,7 @@ def process_wxmp_request(request_json, bot):
         if len(res) >= 2:
             msg_type = "IMAGE_SD" if ("YES" in res[0]) and (not "NO" in res[1]) else "TEXT"
         loginfo.append("res={}, msgtype={}".format(res, msg_type))
-        if msg_type != "IMAGE_SD": #说明不符合绘画需求
+        if ("YES" in res[0]) and ("NO" in res[1]): #说明不符合绘画需求
             post_respons2wxmp("您的绘画请求中可能包含不适合青少年的内容，请重新提问。", toUserName)
             return
 
