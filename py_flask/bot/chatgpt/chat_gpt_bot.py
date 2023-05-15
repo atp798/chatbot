@@ -10,7 +10,7 @@ import io
 from config import get_config
 import base64
 import json
-from chat_gpt_session import ChatGPTSession
+from bot.chatgpt.chat_gpt_session import ChatGPTSession
 from common.session_new import SessionManager
 from config import conf
 
