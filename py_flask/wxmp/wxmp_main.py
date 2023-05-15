@@ -80,8 +80,7 @@ def process_wxmp_request(request_json, bot):
             break
     #fromUserName = request_json["ToUserName"] 
     if not response:
-        response = "不好意思，tokens超限了我得重置下，你继续"
-        bot.clear_session(session_id)
+        response = "未知错误，请尝试clear memory后重试"
 
     if context['type'] == "TEXT":
         post_respons2wxmp(response, toUserName)
