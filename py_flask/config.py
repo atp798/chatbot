@@ -94,11 +94,11 @@ class ConfigParser:
         self.max_token_size = self._json_config.get("max_token_size", 2048)
 
 
-config = ConfigParser()
 
 c = load_config()
 def conf():
     return c
 
+config = ConfigParser()
 def get_config():
     return config
