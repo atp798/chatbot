@@ -64,7 +64,7 @@ class SessionManager(object):
         """
         if session_id is None:
             return self.sessioncls(session_id, system_prompt, **self.session_args)
-
+        logger.debug("build session, sessionid={}".format(session_id))
         if session_id not in self.sessions:
             self.sessions[session_id] = self.sessioncls(session_id, system_prompt, **self.session_args)
         elif system_prompt is not None:  # 如果有新的system_prompt，更新并重置session
