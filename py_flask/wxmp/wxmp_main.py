@@ -53,7 +53,7 @@ def process_wxmp_request(request_json, bot):
         context_tmp['loginfo'] = loginfo
         response = bot.reply(
             'Given a sentence "' + query + '"，' + 
-            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 12 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
+            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 15 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
             , context_tmp)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
         if len(res) >= 2:
