@@ -1,4 +1,4 @@
-from common.session_new import Session
+from common.session_manager import Session
 from common.log import logger
 
 """
