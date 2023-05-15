@@ -16,10 +16,6 @@ class Session(object):
         else:
             self.system_prompt = system_prompt
 
-        self.path = './session.data'
-
-        self.load_sessions()
-        threading.Thread(target=self.dump_sessions, daemon=True).start()
 
     # 重置会话
     def reset(self):
@@ -44,16 +40,7 @@ class Session(object):
     def calc_tokens(self):
         raise NotImplementedError
     
-    def dump_sessions(self):
-        while True:
-            with open(self.path, 'wb') as f:
-                pickle.dump(self._all_sessions, f)
-            time.sleep(20)
 
-    def load_sessions(self):
-        if os.path.exists(self.path):
-            with open(self.path, 'rb') as f:
-                self._all_sessions = pickle.load(f)
 
 
 class SessionManager(object):
@@ -65,6 +52,12 @@ class SessionManager(object):
         self.sessions = sessions
         self.sessioncls = sessioncls
         self.session_args = session_args
+
+
+        self.path = './session.data'
+
+        self.load_sessions()
+        threading.Thread(target=self.dump_sessions, daemon=True).start()
 
     def build_session(self, session_id, system_prompt=None):
         """
@@ -110,3 +103,14 @@ class SessionManager(object):
 
     def clear_all_session(self):
         self.sessions.clear()
+
+    def dump_sessions(self):
+        while True:
+            with open(self.path, 'wb') as f:
+                pickle.dump(self.sessions, f)
+            time.sleep(20)
+
+    def load_sessions(self):
+        if os.path.exists(self.path):
+            with open(self.path, 'rb') as f:
+                self.sessions = pickle.load(f)
