@@ -69,13 +69,12 @@ class SessionManager(object):
         if session_id not in self.sessions:
             self.sessions[session_id] = self.sessioncls(session_id, system_prompt, **self.session_args)
         elif system_prompt is not None:  # 如果有新的system_prompt，更新并重置session
-            pass
-            #self.sessions[session_id].set_system_prompt(system_prompt)
+            self.sessions[session_id].set_system_prompt(system_prompt)
         session = self.sessions[session_id]
         return session
 
-    def session_query(self, query, session_id):
-        session = self.build_session(session_id, conf().get('character_desc'))
+    def session_query(self, query, session_id, system_prompt=None):
+        session = self.build_session(session_id, system_prompt)
         session.add_query(query)
         try:
             max_tokens = conf().get("conversation_max_tokens", 1000)

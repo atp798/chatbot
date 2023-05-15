@@ -56,7 +56,7 @@ class ChatGPTBot(Bot):
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
                 return 'memory cleared'
-            session = self._session.session_query(query, session_id) 
+            session = self._session.session_query(query, session_id, context.get('system_prompt', None))
             if session is None:
                 return "Build session failed, query is tooooo long"
 
@@ -187,6 +187,7 @@ class ChatGPTBot(Bot):
         context_tmp = {}
         context_tmp['session_id'] = "GPT_PRO_TRANSLATE_BOT_001"
         context_tmp['type'] = "TEXT_ONCE" #text without session
+        context_tmp['system_prompt'] = 'Now you are a content understanding machine, you will extract valid information in the text.'
         response = self.reply(
             'The request is: "' + prompt + '". ' +
             'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'

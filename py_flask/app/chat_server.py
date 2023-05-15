@@ -175,6 +175,7 @@ class ChatServer:
                 context['session_id'] = "GPT_PRO_INTENT_BOT_001"
                 context['type'] = "TEXT_ONCE" #text without session
                 context['loginfo'] = loginfo
+                context['system_prompt'] = 'Now you are a text analyzer, you will analyze the text for intent and suitability for minors.'
                 response = self._bot.reply(
                     'Given a sentence "' + query + '"，' + 
                     'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for 18 years old? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
