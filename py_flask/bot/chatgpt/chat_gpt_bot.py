@@ -136,6 +136,7 @@ class ChatGPTBot(Bot):
             return {"completion_tokens": 0, "content": "cannot receive openai response"}
         except Exception as e:
             # unknown exception
+            logger.exception(e)
             self.clear_session(session_id)
             return {"completion_tokens": 0, "content": "unknown error, please ask again"}
 
