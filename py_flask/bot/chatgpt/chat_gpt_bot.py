@@ -64,12 +64,12 @@ class ChatGPTBot(Bot):
         btime = time.time()
         if msgtype == "TEXT_ONCE":
             #对于text once请求，要求他的结果尽量确定，并且不污染session
-            reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
+            reply_content = self.reply_text(session.messages, session_id, retry_count=0, strict_completion=True)
             if reply_content["completion_tokens"] > 0:
                 logger.info("22222, get to reply")
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 500)
         elif msgtype == "TEXT":
-            reply_content = self.reply_text(session, session_id, 0)
+            reply_content = self.reply_text(session.messages, session_id, 0)
             if reply_content["completion_tokens"] > 0:
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"])
         elif msgtype == "IMAGE":
