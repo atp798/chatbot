@@ -3,7 +3,6 @@ from bot.bot import Bot
 from common.log import logger
 from common.token_bucket import TokenBucket
 from common.expired_dict import ExpiredDict
-from common.session import Session
 import openai
 import time
 import requests
@@ -11,6 +10,9 @@ import io
 from config import get_config
 import base64
 import json
+from chat_gpt_session import ChatGPTSession
+from common.session_new import SessionManager
+from config import conf
 
 
 # OpenAI对话模型API (可用)
@@ -19,7 +21,7 @@ class ChatGPTBot(Bot):
     def __init__(self, config_parser):
         logger.info("bot is starting...")
         openai.api_key = config_parser.api_key
-        self._session = Session(config_parser)
+        self._session = SessionManager(ChatGPTSession, model="gpt-3.5-turbo")
 
         self._enable_rate_limit = False
         if config_parser.rate_limit_chatgpt > 0:
@@ -54,7 +56,7 @@ class ChatGPTBot(Bot):
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
                 return 'memory cleared'
-            session = self._session.build_session_query(query, session_id, msgtype) 
+            session = self._session.session_query(query, session_id) 
             if session is None:
                 return "Build session failed, query is tooooo long"
 
@@ -63,11 +65,11 @@ class ChatGPTBot(Bot):
             #对于text once请求，要求他的结果尽量确定，并且不污染session
             reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
             if reply_content["completion_tokens"] > 0:
-                self._session.save_session_by_count(reply_content["content"], session_id, reply_content["total_tokens"], 8)
+                self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 500)
         elif msgtype == "TEXT":
             reply_content = self.reply_text(session, session_id, 0)
             if reply_content["completion_tokens"] > 0:
-                self._session.save_session(reply_content["content"], session_id, reply_content["total_tokens"])
+                self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"])
         elif msgtype == "IMAGE":
             reply_content = self.reply_image(query, 0)
         elif msgtype == "IMAGE_RAW":

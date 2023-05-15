@@ -11,7 +11,7 @@ import threading
 import os
 from config import get_config
 
-class Session(object):
+class SessionOld(object):
     def __init__(self, config_parser):
         logger.info("Session init...")
         self.path = './session.data'

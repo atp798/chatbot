@@ -96,6 +96,9 @@ class ConfigParser:
 
 config = ConfigParser()
 
+c = load_config()
+def conf():
+    return c
 
 def get_config():
     return config
