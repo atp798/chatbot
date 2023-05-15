@@ -203,13 +203,13 @@ class ChatGPTBot(Bot):
         url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
         body = {
             "prompt": prompt + ",(masterpiece:1.2, best quality),((iphone wallpaper)),4K,8K,high quality",
-            "negative_prompt": "(no clothes:1.1),(naked:1.2),(nsfw:1.2),(multi hands),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text,(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
+            "negative_prompt": "(no clothes:1.1),(naked:1.2),(nsfw:1.2),(multi hands),(worst quality, low quality:1.4), EasyNegative, multiple views, multiple panels, blurry, watermark, letterbox, text, (nsfw, See-through:1.1),(extra fingers), (extra hands),(mutated hands and finger), (ugly eyes:1.2),mutated hands, (fused fingers), (too many fingers), (((long neck)))",
             "height": 768,
             "width": 512,
             "steps": 20,
             "restore_faces": True,
             "sampler_name": "DPM++ 2M Karras",
-            "cfg_scale": 9
+            "cfg_scale": 7
         }
 
         res = requests.post(url=url, data=json.dumps(body), headers={'content-type':'application/json'})

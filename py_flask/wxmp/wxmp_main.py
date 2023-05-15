@@ -67,6 +67,7 @@ def process_wxmp_request(request_json, bot):
     context = {}
     context['session_id'] = session_id
     context['type'] = msg_type
+    context['loginfo'] = loginfo
     response = None
     retry = 3
     while retry > 0:
