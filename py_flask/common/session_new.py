@@ -48,6 +48,7 @@ class SessionManager(object):
             sessions = ExpiredDict(conf().get("expires_in_seconds"))
         else:
             sessions = dict()
+        sessions = dict()
         self.sessions = sessions
         self.sessioncls = sessioncls
         self.session_args = session_args
