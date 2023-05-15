@@ -60,7 +60,6 @@ class ChatGPTBot(Bot):
             if session is None:
                 return "Build session failed, query is tooooo long"
 
-        logger.info("11111, msgtype={}, session={}".format(msgtype, session))
         btime = time.time()
         if msgtype == "TEXT_ONCE":
             #对于text once请求，要求他的结果尽量确定，并且不污染session
