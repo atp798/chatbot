@@ -49,7 +49,7 @@ def process_wxmp_request(request_json, bot):
         context_tmp = {}
         context_tmp['session_id'] = "GPR_PRO_INTENT_002"
         context_tmp['type'] = "TEXT_ONCE" #text without session
-        context_tmp['system_prompt'] = 'Now you are a text analyzer, you will analyze the text for intent and suitability for minors.'
+        context_tmp['system_prompt'] = 'Now you are a text analyzer, you will analyze the intent of the text.'
         context_tmp['loginfo'] = loginfo
         response = bot.reply(
             'Given a sentence "' + query + '"，' + 
