@@ -49,6 +49,7 @@ def process_wxmp_request(request_json, bot):
         context_tmp = {}
         context_tmp['session_id'] = "GPR_PRO_INTENT_002"
         context_tmp['type'] = "TEXT_ONCE" #text without session
+        context_tmp['loginfo'] = loginfo
         response = bot.reply(
             'Given a sentence "' + query + '"，' + 
             'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 12 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
