@@ -65,7 +65,7 @@ class ChatGPTBot(Bot):
             #对于text once请求，要求他的结果尽量确定，并且不污染session
             reply_content = self.reply_text(session.messages, session_id, retry_count=0, strict_completion=True)
             if reply_content["completion_tokens"] > 0:
-                self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 500)
+                self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 1024)
         elif msgtype == "TEXT":
             reply_content = self.reply_text(session.messages, session_id, 0)
             if reply_content["completion_tokens"] > 0:
