@@ -75,11 +75,17 @@ class Session(object):
 
         return session
 
-    def save_session_by_count(self, answer, session_id, count):
+    def save_session_by_count(self, answer, session_id, total_tokens, count):
         session = self._all_sessions.get(session_id)
         if session:
+            # append conversation
             gpt_item = {'role': 'assistant', 'content': answer}
             session.append(gpt_item)
+
+        # discard exceed limit conversation
+        self.discard_exceed_conversation(session, self._max_tokens, total_tokens)
+
+        if session:
             while(len(session) > count):
                 session.pop(1)
                 session.pop(1)

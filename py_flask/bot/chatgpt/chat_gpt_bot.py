@@ -1,4 +1,3 @@
-# encoding:utf-8
 
 from bot.bot import Bot
 from common.log import logger
@@ -48,10 +47,10 @@ class ChatGPTBot(Bot):
         loginfo = context.get('loginfo')
 
         #问答类的，需要组织session，画图的暂时不需要
+        session_id = context.get('session_id', None)
+        if session_id is None:
+            return "Invalid session id"
         if msgtype == "TEXT" or msgtype == "TEXT_ONCE":
-            session_id = context.get('session_id', None)
-            if session_id is None:
-                return "Invalid session id"
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
                 return 'memory cleared'
@@ -64,7 +63,7 @@ class ChatGPTBot(Bot):
             #对于text once请求，要求他的结果尽量确定，并且不污染session
             reply_content = self.reply_text(session, session_id, retry_count=0, strict_completion=True)
             if reply_content["completion_tokens"] > 0:
-                self._session.save_session_by_count(reply_content["content"], session_id, 8)
+                self._session.save_session_by_count(reply_content["content"], session_id, reply_content["total_tokens"], 8)
         elif msgtype == "TEXT":
             reply_content = self.reply_text(session, session_id, 0)
             if reply_content["completion_tokens"] > 0:
@@ -135,7 +134,6 @@ class ChatGPTBot(Bot):
             return {"completion_tokens": 0, "content": "cannot receive openai response"}
         except Exception as e:
             # unknown exception
-            logger.exception(e)
             Session.clear_session(session_id)
             return {"completion_tokens": 0, "content": "unknown error, please ask again"}
 
