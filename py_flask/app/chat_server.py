@@ -173,12 +173,11 @@ class ChatServer:
                 loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
-                msgtype = intent_analysis.image_intent_analyser_18.do_analyse(loginfo, query)
+                msgtype = intent_analysis.image_intent_analyser_18.do_analyse(query, loginfo=loginfo)
                 if msgtype == const.IMAGE_INAPPROPRIATE and country_code.lower() != 'cn': #国外放开黄反
                     loginfo.append("open_hf=true")
                     msgtype = const.IMAGE_SD
 
-                logger.info('begin proces22222, {}'.format('; '.join(loginfo)))
                 loginfo.append("msgtype={}".format(msgtype))
                 logger.info('begin process, {}'.format('; '.join(loginfo)))
 

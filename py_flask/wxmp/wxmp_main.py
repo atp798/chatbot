@@ -11,6 +11,7 @@ import traceback
 import re
 from wxmp.wxmp_post2user import post_img_respons2wxmp, post_respons2wxmp, post_img_respons2wxmp_SD
 from common import const
+from common import intent_analysis
 
 def process_wxmp_request(request_json, bot):
     #parameter constant
@@ -47,21 +48,10 @@ def process_wxmp_request(request_json, bot):
     msg_type = const.IMAGE_SD if any(item.lower() in {'draw'} for item in query.split(' ')) else msg_type #对英文，前4个词包含画
     if msg_type == const.IMAGE_SD:
         #意图判断
-        context_tmp = {}
-        context_tmp['session_id'] = "GPR_PRO_INTENT_002"
-        context_tmp['type'] = const.TEXT_ONCE #text without session
-        context_tmp['system_prompt'] = 'Now you are a text analyzer, you will analyze the intent of the text.'
-        context_tmp['loginfo'] = loginfo
-        response = bot.reply(
-            'Given a sentence "' + query + '"，' + 
-            'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for a 15 years old child? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
-            , context_tmp)
-        res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
-        if len(res) >= 2:
-            msg_type = const.IMAGE_SD if ("YES" in res[0]) and (not "NO" in res[1]) else const.TEXT
-        loginfo.append("res={}, msgtype={}".format(res, msg_type))
-        if ("YES" in res[0]) and ("NO" in res[1]): #说明不符合绘画需求
+        msg_type = intent_analysis.image_intent_analyser_15(query, loginfo=loginfo)
+        if msg_type == const.IMAGE_INAPPROPRIATE:
             post_respons2wxmp("您的绘画请求中可能包含不适合青少年的内容，请重新提问。", toUserName)
+            logger.info('begin process, {}'.format('; '.join(loginfo)))
             return
 
     logger.info('begin process, {}'.format('; '.join(loginfo)))

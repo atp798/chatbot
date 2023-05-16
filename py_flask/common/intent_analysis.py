@@ -25,7 +25,7 @@ class ImageIntentAnalyser(IntentAnalyser):
         super().__init__(desc, query_format)
                    
 
-    def do_analyse(self, loginfo, query):
+    def do_analyse(self, query, loginfo=[]):
         res = self.do_chatgpt(loginfo, query)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', res.upper())
 
