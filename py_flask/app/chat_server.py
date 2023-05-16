@@ -172,12 +172,14 @@ class ChatServer:
                 loginfo.append("raw_request=[{}]".format(request_json))
                 loginfo.append("session_id={}".format(session_id))
 
+                logger.info('begin process111111, {}'.format('; '.join(loginfo)))
                 #意图判断
                 msgtype = intent_analysis.image_intent_analyser_18.do_analyse(loginfo, query)
                 if msgtype == const.IMAGE_INAPPROPRIATE and country_code.lower() != 'cn': #国外放开黄反
                     loginfo.append("open_hf=true")
                     msgtype = const.IMAGE_SD
 
+                logger.info('begin proces22222, {}'.format('; '.join(loginfo)))
                 loginfo.append("msgtype={}".format(msgtype))
                 logger.info('begin process, {}'.format('; '.join(loginfo)))
 
@@ -210,7 +212,7 @@ class ChatServer:
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
                 traceback.print_exc()
-                logger.info("end process, {}".format('; '.join(loginfo)))
+                logger.info("end process with error, {}".format('; '.join(loginfo)))
                 return jsonify({"code": 302, "msg": "internal error"})
 
         @self._app.route("/openai/session/google_search", methods=["POST"])
