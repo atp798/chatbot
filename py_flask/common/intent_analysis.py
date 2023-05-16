@@ -3,6 +3,7 @@ from config import conf
 from bot import bot_factory
 from common import const
 import re
+from common.log import logger
 
 class IntentAnalyser(object):
     def __init__(self, desc="", query_format="") -> None:
@@ -15,6 +16,7 @@ class IntentAnalyser(object):
         context['type'] = const.TEXT_ONCE #text without session
         context['loginfo'] = loginfo
         context['system_prompt'] = self.description
+        logger.info('11111111111tttttttt')
         response = self._bot.reply(self.query_format.format(query), context) 
         return response
         
