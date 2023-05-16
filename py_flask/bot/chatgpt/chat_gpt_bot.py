@@ -49,9 +49,7 @@ class ChatGPTBot(Bot):
         loginfo = context.get('loginfo')
 
         #问答类的，需要组织session，画图的暂时不需要
-        session_id = context.get('session_id', None)
-        if session_id is None:
-            return "Invalid session id"
+        session_id = context.get('session_id', None)  #可能为空
         if msgtype == const.TEXT or msgtype == const.TEXT_ONCE:
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
