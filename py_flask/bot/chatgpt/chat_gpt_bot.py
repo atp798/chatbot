@@ -181,7 +181,7 @@ class ChatGPTBot(Bot):
     
     def request_sd_image(self, prompt, context):
         loginfo = context.get('loginfo', [])
-        prompt = intent_analysis.content_extractor_english(prompt, loginfo)
+        prompt = intent_analysis.content_extractor_english.do_analyse(prompt, loginfo)
         loginfo.append("image_query=[{}]".format(prompt))
 
         height = context.get("height")
