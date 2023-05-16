@@ -12,7 +12,7 @@ def init_logger(log_level=logging.INFO):
     #rHandler = RotatingFileHandler(os.path.join(REAL_PATH, 'log.info.'))
 
     # 创建TimedRotatingFileHandler对象，按天级轮换日志
-    rHandler = TimedRotatingFileHandler('log.info', when='midnight', interval=1, backupCount=30)
+    rHandler = TimedRotatingFileHandler('./log/log.info', when='midnight', interval=1, backupCount=30)
 
     rHandler.setLevel(log_level)
     # 设置日志文件名格式
@@ -30,7 +30,7 @@ def init_logger(log_level=logging.INFO):
     logger = logging.getLogger(__name__)
     logger.setLevel(level=log_level)
     logger.addHandler(rHandler)
-    logger.addHandler(console)
+    #logger.addHandler(console)
     return logger
 
 
