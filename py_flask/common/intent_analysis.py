@@ -12,13 +12,16 @@ class IntentAnalyser(object):
         self.description = desc
         self.query_format = query_format
 
-    def do_chatgpt(self, loginfo, query):
+    def do_chatgpt(self, query, loginfo):
         context = {}
         context['type'] = const.TEXT_ONCE #text without session
         context['loginfo'] = loginfo
         context['system_prompt'] = self.description
         response = self.chatgpt_bot.reply(self.query_format.format(query), context) 
         return response
+
+    def do_analyse(self, query, loginfo=[]):
+        pass
         
 class ImageIntentAnalyser(IntentAnalyser):
     def __init__(self, desc, query_format) -> None:
@@ -26,7 +29,7 @@ class ImageIntentAnalyser(IntentAnalyser):
                    
 
     def do_analyse(self, query, loginfo=[]):
-        res = self.do_chatgpt(loginfo, query)
+        res = self.do_chatgpt(query, loginfo)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', res.upper())
 
         msgtype = const.TEXT
@@ -35,7 +38,17 @@ class ImageIntentAnalyser(IntentAnalyser):
             msgtype = const.IMAGE_INAPPROPRIATE if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
         loginfo.append("image_intent={}".format(res))
         return msgtype
-        
+
+class ContentExtractor(IntentAnalyser):
+    def __init__(self, desc="", query_format="") -> None:
+        super().__init__(desc, query_format)
+
+    def do_analyse(self, query, loginfo=[]):
+        res = self.do_chatgpt(query, loginfo)
+        prompt = res.strip('"')
+        parts = prompt.split('Draw', 1)
+        prompt = prompt if len(parts) < 2 else parts[1].strip()
+        return prompt
 
 image_intent_analyser_18 = ImageIntentAnalyser(
     desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
@@ -51,6 +64,12 @@ image_intent_analyser_15 = ImageIntentAnalyser(
         '1. Is this sentence just a request for drawing? '
         '2. Is this sentence suitable for 15 years old? '
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
+)
+
+content_extractor_english = ContentExtractor(
+    desc='Now you are a content understanding machine, you will extract valid information in the text.',
+    query_format=('The request is: "{}".'
+        'Tell me what needs to be drawn in the request in English, answer me start with "Draw":')
 )
 
 

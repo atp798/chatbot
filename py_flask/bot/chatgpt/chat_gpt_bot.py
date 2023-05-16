@@ -13,6 +13,7 @@ import json
 from bot.chatgpt.chat_gpt_session import ChatGPTSession
 from common.session_manager import SessionManager
 from config import conf
+from common import intent_analysis
 
 
 # OpenAI对话模型API (可用)
@@ -180,19 +181,7 @@ class ChatGPTBot(Bot):
     
     def request_sd_image(self, prompt, context):
         loginfo = context.get('loginfo', [])
-
-        #请求chatgpt进行翻译
-        context_tmp = {}
-        context_tmp['session_id'] = "GPT_PRO_TRANSLATE_BOT_001"
-        context_tmp['type'] = const.TEXT_ONCE #text without session
-        context_tmp['system_prompt'] = 'Now you are a content understanding machine, you will extract valid information in the text.'
-        response = self.reply(
-            'The request is: "' + prompt + '". ' +
-            'Tell me what needs to be drawn in the request in English, answer me start with "Draw":'
-            , context_tmp)
-        prompt = response.strip('"')
-        parts = prompt.split('Draw', 1)
-        prompt = prompt if len(parts) < 2 else parts[1].strip()
+        prompt = intent_analysis.content_extractor_english(prompt, loginfo)
         loginfo.append("image_query=[{}]".format(prompt))
 
         height = context.get("height")
