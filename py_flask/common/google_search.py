@@ -188,7 +188,7 @@ class GoogleSearch:
         for i in range(3):
             rtn = dict()
             rtn["title"] = data[i]["title"]
-            rtn["summary"] = data[i]["snippet"]
+            #rtn["summary"] = data[i]["snippet"]
             text = self.request_link(data[i]["link"])
             summary = self.summarize_text(data[i]["link"], text, query)
             content = json.loads(json.dumps(summary))["choices"][0]["message"]["content"]
