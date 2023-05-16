@@ -20,7 +20,7 @@ class ChatGPTBot(Bot):
 
     def __init__(self, conf_json):
         logger.info("bot is starting...")
-        openai.api_key = conf_json.get('api_key')
+        openai.api_key = conf_json.get('open_ai_api_key')
         self._session = SessionManager(ChatGPTSession, model="gpt-3.5-turbo")
 
         self._enable_rate_limit = False
