@@ -52,7 +52,7 @@ class ChatGPTBot(Bot):
         session_id = context.get('session_id', None)
         if session_id is None:
             return "Invalid session id"
-        if msgtype == const or msgtype == const.TEXT_ONCE:
+        if msgtype == const.TEXT or msgtype == const.TEXT_ONCE:
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
                 return 'memory cleared'
