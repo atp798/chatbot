@@ -9,5 +9,9 @@
   "clear_memory_commands": "clear memory",
   "clear_all_memory_commands": "Please set any secrect commands:09sjd2",
   "conversation_max_tokens": 1024,
-  "character_desc": "你是ChatGPT, 一个由OpenAI训练的大型语言模型, 你旨在回答并解决人们的任何问题，并且可以使用多种语言与人交流。"
+  "character_desc": "你是ChatGPT, 一个由OpenAI训练的大型语言模型, 你旨在回答并解决人们的任何问题，并且可以使用多种语言与人交流。",
+  "open_wxmp": true,
+  "max_token_size": 4096,
+  "google_search_api_key": "GOOGLE API KEY",
+  "google_search_api_cx": "GOOGLE API CX"
 }

@@ -92,7 +92,8 @@ class ConfigParser:
         self.gpt_model = self._json_config.get("model")
         self.open_wxmp = self._json_config.get("open_wxmp", True)
         self.max_token_size = self._json_config.get("max_token_size", 2048)
-
+        self.google_search_api_key = self._json_config.get("google_search_api_key")
+        self.google_search_api_cx = self._json_config.get("google_search_api_cx")
 
 
 c = load_config()
