@@ -4,10 +4,11 @@ from bot import bot_factory
 from common import const
 import re
 from common.log import logger
+from bot.chatgpt import chat_gpt_bot
 
 class IntentAnalyser(object):
     def __init__(self, desc="", query_format="") -> None:
-        self.chatgpt_bot = bot_factory.create_bot(const.CHATGPT, conf())
+        self.chatgpt_bot = chat_gpt_bot.ChatGPTBot(conf_json=conf())
         self.description = desc
         self.query_format = query_format
 
