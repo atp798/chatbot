@@ -1,4 +1,4 @@
-
+from common import const
 from bot.bot import Bot
 from common.log import logger
 from common.token_bucket import TokenBucket
@@ -18,17 +18,17 @@ from config import conf
 # OpenAI对话模型API (可用)
 class ChatGPTBot(Bot):
 
-    def __init__(self, config_parser):
+    def __init__(self, conf_json):
         logger.info("bot is starting...")
-        openai.api_key = config_parser.api_key
+        openai.api_key = conf_json.get('api_key')
         self._session = SessionManager(ChatGPTSession, model="gpt-3.5-turbo")
 
         self._enable_rate_limit = False
-        if config_parser.rate_limit_chatgpt > 0:
+        if conf_json.get('rate_limit_chatgpt', 0) > 0:
             self._enable_rate_limit = True
-            self._tb4chatgpt = TokenBucket(config_parser.rate_limit_chatgpt)
-        if len(config_parser.clear_memory_commands) > 0:
-            self._clear_memory_commands = config_parser.clear_memory_commands
+            self._tb4chatgpt = TokenBucket(conf_json.get('rate_limit_chatgpt'))
+        if len(conf_json.get('clear_memory_commands')) > 0:
+            self._clear_memory_commands = conf_json.get('clear_memory_commands', 'clear memory')
             
     def clear_session(self, session_id):
         self._session.clear_session(session_id)
@@ -52,7 +52,7 @@ class ChatGPTBot(Bot):
         session_id = context.get('session_id', None)
         if session_id is None:
             return "Invalid session id"
-        if msgtype == "TEXT" or msgtype == "TEXT_ONCE":
+        if msgtype == const or msgtype == const.TEXT_ONCE:
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
                 return 'memory cleared'
@@ -60,22 +60,21 @@ class ChatGPTBot(Bot):
             if session is None:
                 return "Build session failed, query is tooooo long"
 
-        logger.debug("begin reply text, session={} message={}".format(session, session.messages))
         btime = time.time()
-        if msgtype == "TEXT_ONCE":
+        if msgtype == const.TEXT_ONCE:
             #对于text once请求，要求他的结果尽量确定，并且不污染session
             reply_content = self.reply_text(session.messages, session_id, retry_count=0, strict_completion=True)
             if reply_content["completion_tokens"] > 0:
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 1024)
-        elif msgtype == "TEXT":
+        elif msgtype == const.TEXT:
             reply_content = self.reply_text(session.messages, session_id, 0)
             if reply_content["completion_tokens"] > 0:
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"])
-        elif msgtype == "IMAGE":
+        elif msgtype == const.IMAGE:
             reply_content = self.reply_image(query, 0)
-        elif msgtype == "IMAGE_RAW":
+        elif msgtype == const.IMAGE_RAW:
             reply_content = self.reply_image_rawdata(query)
-        elif msgtype == "IMAGE_SD":
+        elif msgtype == const.IMAGE_SD:
             reply_content = {"content": self.request_sd_image(query, context)} 
 
         tdiff = time.time() - btime
@@ -187,7 +186,7 @@ class ChatGPTBot(Bot):
         #请求chatgpt进行翻译
         context_tmp = {}
         context_tmp['session_id'] = "GPT_PRO_TRANSLATE_BOT_001"
-        context_tmp['type'] = "TEXT_ONCE" #text without session
+        context_tmp['type'] = const.TEXT_ONCE #text without session
         context_tmp['system_prompt'] = 'Now you are a content understanding machine, you will extract valid information in the text.'
         response = self.reply(
             'The request is: "' + prompt + '". ' +

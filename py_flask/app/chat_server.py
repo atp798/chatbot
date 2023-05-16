@@ -16,6 +16,8 @@ import time
 from common import utils
 import re
 from common.google_search import GoogleSearch
+from config import conf
+from common import intent_analysis
 
 
 class ChatServer:
@@ -26,7 +28,7 @@ class ChatServer:
         self._debug_mode = config_parser.debug_mode
         self._ip_addr = config_parser.ip_addr
         self._port = config_parser.port
-        self._bot = create_bot(const.CHATGPT, config_parser)
+        self._bot = create_bot(const.CHATGPT, conf())
         self._google_search = GoogleSearch(config_parser.google_search_api_key,config_parser.google_search_api_cx, config_parser.api_key)
 
         def debug_request(req):
@@ -134,7 +136,7 @@ class ChatServer:
                 query = request_json["query"]
                 session_id = request_json["session_id"]
                 msgtype = request_json.get('msgtype', "text").upper()
-                msgtype = "IMAGE_RAW" if query.startswith(("画","draw","Draw","帮我画")) else msgtype
+                msgtype = const.IMAGE_RAW if query.startswith(("画","draw","Draw","帮我画")) else msgtype
 
                 context = dict()
                 context['session_id'] = session_id
@@ -163,41 +165,24 @@ class ChatServer:
                 return jsonify({"code": 301, "msg": "empty session id"})
 
             try:
-                #构建请求chatgpt的query
                 query = request_json["query"]
                 session_id = request_json["session_id"]
-                coutry_code = request_json.get("country_code", "")
+                country_code = request_json.get("country_code", "")
 
                 loginfo.append("raw_request=[{}]".format(request_json))
-                loginfo.append("raw_query=[{}]".format(query))
                 loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
-                context = {}
-                context['session_id'] = "GPT_PRO_INTENT_BOT_001"
-                context['type'] = "TEXT_ONCE" #text without session
-                context['loginfo'] = loginfo
-                context['system_prompt'] = 'Now you are a text analyzer, you will analyze the text for intent and suitability for minors.'
-                response = self._bot.reply(
-                    'Given a sentence "' + query + '"，' + 
-                    'answer two questions: 1. Is this sentence just a request for drawing? 2. Is this sentence suitable for 18 years old? Return two answers, each answer should not exceed one word, and the answer should be either YES or NO'
-                    , context)
-                res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
+                msgtype = intent_analysis.image_intent_analyser_18.do_analyse(loginfo, query)
+                if msgtype == const.IMAGE_INAPPROPRIATE and country_code.lower() != 'cn': #国外放开黄反
+                    loginfo.append("open_hf=true")
+                    msgtype = const.IMAGE_SD
 
-                msgtype = "TEXT"
-                if len(res) >= 2:
-                    if coutry_code.lower() != "cn": #国外放开黄反
-                        loginfo.append("open_hf=true")
-                        res[1] = "YES"
-                    msgtype = "IMAGE_SD" if ("YES" in res[0]) and ("YES" in res[1]) else msgtype
-                    msgtype = "IMAGE_INAPPROPRIATE" if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
-                #loginfo.append("image_intent_res={}".format(response))
-                loginfo.append("image_intent={}".format(res))
                 loginfo.append("msgtype={}".format(msgtype))
                 logger.info('begin process, {}'.format('; '.join(loginfo)))
 
                 response = None
-                if msgtype == "IMAGE_SD" :
+                if msgtype == const.IMAGE_SD :
                     #如果是绘画意图，则翻译成英语,再请求sd
                     context = {}
                     context['session_id'] = session_id
@@ -208,8 +193,8 @@ class ChatServer:
                     context['steps'] = request_json["steps"]
                     #请求Stable Diffusion
                     response = self._bot.reply(query, context)
-                elif msgtype == "IMAGE_INAPPROPRIATE":
-                    msgtype = "TEXT"
+                elif msgtype == const.IMAGE_INAPPROPRIATE:
+                    msgtype = const.TEXT
                     response = "You requested inappropriate content to draw, please change a request."
                 #默认文字请求
                 else:

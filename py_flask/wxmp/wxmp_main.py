@@ -10,6 +10,7 @@ from config import get_config
 import traceback
 import re
 from wxmp.wxmp_post2user import post_img_respons2wxmp, post_respons2wxmp, post_img_respons2wxmp_SD
+from common import const
 
 def process_wxmp_request(request_json, bot):
     #parameter constant
@@ -41,14 +42,14 @@ def process_wxmp_request(request_json, bot):
     toUserName = request_json["FromUserName"]
 
     #标注请求类型，文字还是画图，有可能有更复杂的
-    msg_type = request_json.get("MsgType", "TEXT").upper()
-    msg_type = "IMAGE_SD" if any(item in {'画', '图'} for item in query) else msg_type #对中文，前4个字包含画
-    msg_type = "IMAGE_SD" if any(item.lower() in {'draw'} for item in query.split(' ')) else msg_type #对英文，前4个词包含画
-    if msg_type == "IMAGE_SD":
+    msg_type = const.TEXT
+    msg_type = const.IMAGE_SD if any(item in {'画', '图'} for item in query) else msg_type #对中文，前4个字包含画
+    msg_type = const.IMAGE_SD if any(item.lower() in {'draw'} for item in query.split(' ')) else msg_type #对英文，前4个词包含画
+    if msg_type == const.IMAGE_SD:
         #意图判断
         context_tmp = {}
         context_tmp['session_id'] = "GPR_PRO_INTENT_002"
-        context_tmp['type'] = "TEXT_ONCE" #text without session
+        context_tmp['type'] = const.TEXT_ONCE #text without session
         context_tmp['system_prompt'] = 'Now you are a text analyzer, you will analyze the intent of the text.'
         context_tmp['loginfo'] = loginfo
         response = bot.reply(
@@ -57,7 +58,7 @@ def process_wxmp_request(request_json, bot):
             , context_tmp)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', response.upper())
         if len(res) >= 2:
-            msg_type = "IMAGE_SD" if ("YES" in res[0]) and (not "NO" in res[1]) else "TEXT"
+            msg_type = const.IMAGE_SD if ("YES" in res[0]) and (not "NO" in res[1]) else const.TEXT
         loginfo.append("res={}, msgtype={}".format(res, msg_type))
         if ("YES" in res[0]) and ("NO" in res[1]): #说明不符合绘画需求
             post_respons2wxmp("您的绘画请求中可能包含不适合青少年的内容，请重新提问。", toUserName)
@@ -85,11 +86,11 @@ def process_wxmp_request(request_json, bot):
     if not response:
         response = "未知错误，请尝试clear memory后重试"
 
-    if context['type'] == "TEXT":
+    if context['type'] == const.TEXT:
         post_respons2wxmp(response, toUserName)
-    elif context['type'] == "IMAGE":
+    elif context['type'] == const.IMAGE:
         post_img_respons2wxmp(response, toUserName)
-    elif context['type'] == "IMAGE_SD":
+    elif context['type'] == const.IMAGE_SD:
         post_img_respons2wxmp_SD(response, toUserName)
     logger.info("end process, {}".format('; '.join(loginfo)))
     return
