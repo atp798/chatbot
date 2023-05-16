@@ -10,6 +10,7 @@ else
     PYTHON=python
 fi
 
+mkdir log 2>&1
 touch nohup.out
 nohup $PYTHON run.py $dir 2>&1 &
 tail -f nohup.out
