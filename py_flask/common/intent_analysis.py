@@ -16,8 +16,7 @@ class IntentAnalyser(object):
         context['type'] = const.TEXT_ONCE #text without session
         context['loginfo'] = loginfo
         context['system_prompt'] = self.description
-        logger.info('11111111111tttttttt')
-        response = self._bot.reply(self.query_format.format(query), context) 
+        response = self.chatgpt_bot.reply(self.query_format.format(query), context) 
         return response
         
 class ImageIntentAnalyser(IntentAnalyser):
