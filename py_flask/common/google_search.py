@@ -15,7 +15,7 @@ class GoogleSearch:
         #openai.api_key = config_parser.api_key
         self._google_search_api_key = api_key
         self._google_search_cx = cx
-        openai.api_key = openai_api_key
+        #openai.api_key = openai_api_key
 
 
     def scroll_to_percentage(self, driver: WebDriver, ratio: float) -> None:

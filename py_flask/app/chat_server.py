@@ -27,7 +27,7 @@ class ChatServer:
         self._ip_addr = config_parser.ip_addr
         self._port = config_parser.port
         self._bot = create_bot(const.CHATGPT, config_parser)
-        self._google_search = GoogleSearch(config_parser.google_search_api_key,config_parser.google_search_cx, config_parser.api_key)
+        self._google_search = GoogleSearch(config_parser.google_search_api_key,config_parser.google_search_api_cx, config_parser.api_key)
 
         def debug_request(req):
             print("----- get headers:")
