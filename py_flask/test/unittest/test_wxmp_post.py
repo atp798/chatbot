@@ -11,14 +11,14 @@ from common.google_search import GoogleSearch
 
 def gs():
     query = "books"
-    gst = GoogleSearch("AIzaSyDLov3D9ItqOBC2lSfeeeYfGKX4-WNYx20", "73dcb0bd11a7f48d5", "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")
+    gst = GoogleSearch("google-api-key", "google-api-xc", "openai-api-key")
     text = gst.search(query)
     print(text)
 
 def gs_link():
     query = "分析腾讯财报"
     url = "https://finance.sina.com.cn/tech/internet/2023-03-22/doc-imymtrtx1574500.shtml"
-    gst = GoogleSearch("AIzaSyDLov3D9ItqOBC2lSfeeeYfGKX4-WNYx20", "73dcb0bd11a7f48d5", "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")
+    gst = GoogleSearch("google-api-key", "google-api-xc", "openai-api-key")
     text = gst.request_link(url)
     summary = gst.summarize_text(url, text, query)
     print(summary)
