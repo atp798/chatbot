@@ -11,6 +11,5 @@ else
 fi
 
 mkdir log 2>&1
-touch nohup.out
-nohup $PYTHON run.py $dir 2>&1 &
+nohup $PYTHON run.py $dir >> log/log.info 2>&1 &
 tail -f log/log.info
