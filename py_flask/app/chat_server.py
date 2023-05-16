@@ -235,6 +235,7 @@ class ChatServer:
                 loginfo.append("response=[{}]".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
+                msgtype="TEXT"
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
             except Exception:
                 traceback.print_exc()
