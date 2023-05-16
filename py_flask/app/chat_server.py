@@ -15,6 +15,7 @@ import json
 import time
 from common import utils
 import re
+from common.google_search import GoogleSearch
 
 
 class ChatServer:
@@ -26,6 +27,7 @@ class ChatServer:
         self._ip_addr = config_parser.ip_addr
         self._port = config_parser.port
         self._bot = create_bot(const.CHATGPT, config_parser)
+        self._google_search = GoogleSearch(config_parser.google_search_api_key,config_parser.google_search_cx, config_parser.api_key)
 
         def debug_request(req):
             print("----- get headers:")
@@ -218,6 +220,34 @@ class ChatServer:
                     #请求chatgpt
                     response = self._bot.reply(query, context)
 
+                logger.info("end process, {}".format('; '.join(loginfo)))
+                # 返回结果到客户端
+                return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
+            except Exception:
+                traceback.print_exc()
+                logger.info("end process, {}".format('; '.join(loginfo)))
+                return jsonify({"code": 302, "msg": "internal error"})
+
+        @self._app.route("/openai/session/google_search", methods=["POST"])
+        def google_search():
+            if self._debug_mode:
+                debug_request(request)
+
+            loginfo = []
+            request_json = request.get_json()
+            if len(request_json) == 0:
+                return jsonify({"code": 301, "msg": "empty request"})
+            if "query" not in request_json or not isinstance(request_json["query"], str):
+                return jsonify({"code": 301, "msg": "empty query"})
+
+            try:
+                query = request_json["query"]
+                loginfo.append("raw_query=[{}]".format(query))
+                logger.info('begin process, {}'.format('; '.join(loginfo)))
+
+                response = self._google_search.search(query)
+                
+                loginfo.append("response=[{}]".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
