@@ -7,7 +7,21 @@ import sys
 sys.path.append(os.getcwd())
 
 #from wxmp.wxmp_post2user import do_post_action
+from common.google_search import GoogleSearch
 
+def gs():
+    query = "books"
+    gst = GoogleSearch("AIzaSyDLov3D9ItqOBC2lSfeeeYfGKX4-WNYx20", "73dcb0bd11a7f48d5", "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")
+    text = gst.search(query)
+    print(text)
+
+def gs_link():
+    query = "分析腾讯财报"
+    url = "https://finance.sina.com.cn/tech/internet/2023-03-22/doc-imymtrtx1574500.shtml"
+    gst = GoogleSearch("AIzaSyDLov3D9ItqOBC2lSfeeeYfGKX4-WNYx20", "73dcb0bd11a7f48d5", "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")
+    text = gst.request_link(url)
+    summary = gst.summarize_text(url, text, query)
+    print(summary)
 
 def post2test_serv():
     url = "http://128.1.41.43:9081/openai/session/wechat/chat-completion?signature=e6259740679387f90d2df613e00fb071b38776d7&timestamp=1679918602&nonce=1288599824&openid=oiJo_5lGFN1xwiQtvFxT2W_7N6v8"
@@ -42,6 +56,7 @@ def test_android_app_post():
 
 
 if __name__ == '__main__':
+    #gs_link()
     #post2test_serv()
     #test = test_android_app_post()
     #print(test.text)
