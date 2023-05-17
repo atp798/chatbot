@@ -52,7 +52,7 @@ class ContentExtractor(IntentAnalyser):
 image_intent_analyser_18 = ImageIntentAnalyser(
     desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
     query_format=('Given a sentence "{}", answer two questions: '
-        '1. Is this sentence just a request for drawing? '
+        '1. Is this sentence a request for drawing? '
         '2. Is this sentence suitable for 18 years old? '
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
@@ -60,7 +60,7 @@ image_intent_analyser_18 = ImageIntentAnalyser(
 image_intent_analyser_15 = ImageIntentAnalyser(
     desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
     query_format=('Given a sentence "{}", answer two questions: '
-        '1. Is this sentence just a request for drawing? '
+        '1. Is this sentence a request for drawing? '
         '2. Is this sentence suitable for 15 years old? '
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
