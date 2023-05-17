@@ -54,6 +54,9 @@ def process_wxmp_request(request_json, bot):
             logger.info('begin process, {}'.format('; '.join(loginfo)))
             return
 
+    if msg_type == const.TEXT:
+        timeliness_intent = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
+        loginfo.append("timeline={}".format(timeliness_intent))
     logger.info('begin process, {}'.format('; '.join(loginfo)))
     context = {}
     context['session_id'] = session_id

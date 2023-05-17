@@ -48,20 +48,29 @@ class ContentExtractor(IntentAnalyser):
         parts = prompt.split('Draw', 1)
         prompt = prompt if len(parts) < 2 else parts[1].strip()
         return prompt
+    
+class TimelinessAnalayser(IntentAnalyser):
+    def __init__(self, desc="", query_format="") -> None:
+        super().__init__(desc, query_format)
+    def do_analyse(self, query, loginfo=[]):
+        res = self.do_chatgpt(query, loginfo)
+        res = re.find(r'\b(YES|NO|UNCERTAIN)\b', res.upper())
+        return True if "YES" in res else False
+
 
 image_intent_analyser_18 = ImageIntentAnalyser(
     desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
-    query_format=('Given a sentence "{}", answer two questions: '
-        '1. Is this sentence a request for drawing? '
-        '2. Is this sentence suitable for 18 years old? '
+    query_format=('Given a sentence "{}", answer two questions:'
+        '1. Is this sentence a request for drawing?'
+        '2. Is this request suitable for 18 years old?'
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
 
 image_intent_analyser_15 = ImageIntentAnalyser(
     desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
-    query_format=('Given a sentence "{}", answer two questions: '
-        '1. Is this sentence a request for drawing? '
-        '2. Is this sentence suitable for 15 years old? '
+    query_format=('Given a sentence "{}", answer two questions:'
+        '1. Is this sentence a request for drawing?'
+        '2. Is this request suitable for 15 years old?'
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
 
@@ -71,5 +80,10 @@ content_extractor_english = ContentExtractor(
         'Tell me what needs to be drawn in the request in English, answer me start with "Draw":')
 )
 
-
+timeliness_analayser = TimelinessAnalayser(
+    desc='Now you are a text analyzer, and you will analyze the deep intent of the text.',
+    query_format=('Given a sentence "{}",'
+        'Tell me if this sentence includes a requirement for timeliness.'
+        'Answer me with one word, and the answer should be either YES or NO.')
+)
 
