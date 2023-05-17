@@ -52,7 +52,7 @@ class GoogleSearch:
 
     def split_text(self,
         text: str,
-        max_length: int = 3000,
+        max_length: int = 4096,
         model: str = "gpt-3.5-turbo",
         question: str = "",
     ) -> Generator[str, None, None]:
@@ -116,7 +116,7 @@ class GoogleSearch:
             model=model,
             messages=messages,
         )
-        
+
         summaries[index] = summary.choices[0].message["content"]
         tdiff = time.time() - btime
         logger.info("text {} chunk {} len={} summarize_chunk_time={}".format(i, index, len(chunk),int(tdiff * 1000)))    
@@ -143,28 +143,35 @@ class GoogleSearch:
         summaries = []
         chunks = list(
             self.split_text(
-                text, max_length=3000, model=model, question=question
+                text, max_length=4096, model=model, question=question
             ),
         )
         scroll_ratio = 1 / len(chunks)
         workers = []
-        for i, chunk in enumerate(chunks):
-            if driver:
-                self.scroll_to_percentage(driver, scroll_ratio * i)
-            summaries.append(i)
-            thread = threading.Thread(target=self.process_chunk, args=(j, i, summaries, chunk, question,))
-            thread.start()
-            workers.append(thread)
+        if len(chunks) > 1:
+            for i, chunk in enumerate(chunks):
+                if driver:
+                    self.scroll_to_percentage(driver, scroll_ratio * i)
+                summaries.append(i)
+                thread = threading.Thread(target=self.process_chunk, args=(j, i, summaries, chunk, question,))
+                thread.start()
+                workers.append(thread)
         
-        for thread in workers:
-            thread.join()
+            for thread in workers:
+                thread.join()
 
-        combined_summary = "\n".join(summaries)
-        messages = [self.create_message(combined_summary, question)]
-        return openai.ChatCompletion.create(
-            model=model,
-            messages=messages,
-        )
+            combined_summary = "\n".join(summaries)
+            messages = [self.create_message(combined_summary, question)]
+            return openai.ChatCompletion.create(
+                model=model,
+                messages=messages,
+            )
+        else:
+            messages = [self.create_message(chunks[0], question)]
+            return openai.ChatCompletion.create(
+                model=model,
+                messages=messages,
+            )
     
     def request_link(self, link):
         res = requests.get(link)
