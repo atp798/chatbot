@@ -2,6 +2,8 @@ import requests
 import json
 import spacy
 import openai
+import threading
+import time
 from bs4 import BeautifulSoup
 from common.log import logger
 from typing import Dict, Generator, Optional
@@ -12,10 +14,8 @@ class GoogleSearch:
     def __init__(self, api_key, cx, openai_api_key):
         #self._google_search_api_key = config_parser.google_search_api_key
         #self._google_search_cx = config_parser.google_search_cx
-        #openai.api_key = config_parser.api_key
         self._google_search_api_key = api_key
         self._google_search_cx = cx
-        #openai.api_key = openai_api_key
 
 
     def scroll_to_percentage(self, driver: WebDriver, ratio: float) -> None:
@@ -52,7 +52,7 @@ class GoogleSearch:
 
     def split_text(self,
         text: str,
-        max_length: int = 3000,
+        max_length: int = 4096,
         model: str = "gpt-3.5-turbo",
         question: str = "",
     ) -> Generator[str, None, None]:
@@ -106,7 +106,22 @@ class GoogleSearch:
             yield " ".join(current_chunk)
 
 
-    def summarize_text(self,
+    def process_chunk(self, i, index, summaries, chunk, question):
+        btime = time.time()
+        model = "gpt-3.5-turbo"
+        messages = [self.create_message(chunk, question)]
+        #tokens_for_chunk = num_tokens_from_messages(messages, model)
+
+        summary = openai.ChatCompletion.create(
+            model=model,
+            messages=messages,
+        )
+
+        summaries[index] = summary.choices[0].message["content"]
+        tdiff = time.time() - btime
+        logger.info("text {} chunk {} len={} summarize_chunk_time={}".format(i, index, len(chunk),int(tdiff * 1000)))    
+
+    def summarize_text(self, j,
         url: str, text: str, question: str, driver: Optional[WebDriver] = None
     ) -> str:
         """Summarize text using the OpenAI API
@@ -124,47 +139,39 @@ class GoogleSearch:
             return "Error: No text to summarize"
 
         model = "gpt-3.5-turbo"
-        text_length = len(text)
-        logger.info(f"Text length: {text_length} characters")
 
         summaries = []
         chunks = list(
             self.split_text(
-                text, max_length=3000, model=model, question=question
+                text, max_length=4096, model=model, question=question
             ),
         )
         scroll_ratio = 1 / len(chunks)
-        for i, chunk in enumerate(chunks):
-            if driver:
-                self.scroll_to_percentage(driver, scroll_ratio * i)
-            logger.info(f"Adding chunk {i + 1} / {len(chunks)} to memory")
-            #memory_to_add = f"Source: {url}\n" f"Raw content part#{i + 1}: {chunk}"
-            #memory = get_memory(CFG)
-            #memory.add(memory_to_add)
-            messages = [self.create_message(chunk, question)]
-            tokens_for_chunk = num_tokens_from_messages(messages, model)
-            logger.info(
-                f"Summarizing chunk {i + 1} / {len(chunks)} of length {len(chunk)} characters, or {tokens_for_chunk} tokens"
-            )
+        workers = []
+        if len(chunks) > 1:
+            for i, chunk in enumerate(chunks):
+                if driver:
+                    self.scroll_to_percentage(driver, scroll_ratio * i)
+                summaries.append(i)
+                thread = threading.Thread(target=self.process_chunk, args=(j, i, summaries, chunk, question,))
+                thread.start()
+                workers.append(thread)
+        
+            for thread in workers:
+                thread.join()
 
-            summary = openai.ChatCompletion.create(
+            combined_summary = "\n".join(summaries)
+            messages = [self.create_message(combined_summary, question)]
+            return openai.ChatCompletion.create(
                 model=model,
                 messages=messages,
             )
-            summaries.append(summary.choices[0].message["content"])
-            logger.info(
-                f"Added chunk {i + 1} summary to memory, of length {len(summary)} characters"
+        else:
+            messages = [self.create_message(chunks[0], question)]
+            return openai.ChatCompletion.create(
+                model=model,
+                messages=messages,
             )
-            #memory_to_add = f"Source: {url}\n" f"Content summary part#{i + 1}: {summary}"
-            #memory.add(memory_to_add)
-
-        logger.info(f"Summarized {len(chunks)} chunks.")
-        combined_summary = "\n".join(summaries)
-        messages = [self.create_message(combined_summary, question)]
-        return openai.ChatCompletion.create(
-            model=model,
-            messages=messages,
-        )
     
     def request_link(self, link):
         res = requests.get(link)
@@ -175,25 +182,38 @@ class GoogleSearch:
         text = soup.body.get_text()
         lines = (line.strip() for line in text.splitlines())
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = "\n".join(chunk for chunk in chunks if chunk)
+        text = "\n".join(chunk for chunk in chunks if chunk) 
         return text
+    
+    def process_link(self, i, link, rtn, query):
+        btime = time.time()
+        text = self.request_link(link)
+        summary = self.summarize_text(i, link, text, query)
+        content = json.loads(json.dumps(summary))["choices"][0]["message"]["content"]
+        rtn["content"] = content
+        tdiff = time.time() - btime
+        logger.info("text {} len={} summarize_link_time={}".format(i, len(text), int(tdiff * 1000)))    
 
     def search(self, query):
+        btime = time.time()
         url = "https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
         logger.info(f"google search api: {url}")
         
         res = requests.get(url)
         data = json.loads(res.text).get('items')
         results = []
+        workers = []
         for i in range(3):
             rtn = dict()
             rtn["title"] = data[i]["title"]
-            #rtn["summary"] = data[i]["snippet"]
-            text = self.request_link(data[i]["link"])
-            summary = self.summarize_text(data[i]["link"], text, query)
-            content = json.loads(json.dumps(summary))["choices"][0]["message"]["content"]
-            logger.info(f'content: {content}')
-            rtn["content"] = content
             results.append(rtn)
+            thread = threading.Thread(target=self.process_link, args=(i, data[i]["link"],rtn,query, ))
+            thread.start()
+            workers.append(thread)
+        
+        for thread in workers:
+            thread.join()
+        tdiff = time.time() - btime
+        logger.info("search_time={}".format(int(tdiff * 1000))) 
         return results
 
