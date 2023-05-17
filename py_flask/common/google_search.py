@@ -188,22 +188,29 @@ class GoogleSearch:
     def process_link(self, i, link, rtn, query):
         btime = time.time()
         text = self.request_link(link)
-        summary = self.summarize_text(i, link, text, query)
-        content = json.loads(json.dumps(summary))["choices"][0]["message"]["content"]
-        rtn["content"] = content
+        #summary = self.summarize_text(i, link, text, query)
+        #content = json.loads(json.dumps(summary))["choices"][0]["message"]["content"]
+        rtn["content"] = text
         tdiff = time.time() - btime
-        logger.info("text {} len={} summarize_link_time={}".format(i, len(text), int(tdiff * 1000)))    
+        logger.info("text {} len={} summarize_link_time={} link={}".format(i, len(text), int(tdiff * 1000), link))    
 
     def search(self, query):
         btime = time.time()
         url = "https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
         logger.info(f"google search api: {url}")
-        
         res = requests.get(url)
-        data = json.loads(res.text).get('items')
+        res = json.loads(res.text)
+        if 'spelling' in res:
+            query = res['spelling']['correctedQuery']
+            url ="https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
+            logger.info(f"google search api: {url}")
+            res = requests.get(url)
+            res = json.loads(res.text)
+
+        data = res.get('items')
         results = []
         workers = []
-        for i in range(3):
+        for i in range(len(data)):
             rtn = dict()
             rtn["title"] = data[i]["title"]
             results.append(rtn)
@@ -213,7 +220,18 @@ class GoogleSearch:
         
         for thread in workers:
             thread.join()
+
+        rtnlen = len(results[0]["content"])
+        index = 0
+        for i, result in enumerate(results):
+            l = len(result["content"])
+            if abs(l-3000) < abs(rtnlen-3000):
+                index = i
+                rtnlen = l
+        if len(results[index]["content"]) > 3500:
+            results[index]["content"] = results[index]["content"][0: 3500]
+
         tdiff = time.time() - btime
-        logger.info("search_time={}".format(int(tdiff * 1000))) 
-        return results
+        logger.info("search_time={} index={}".format(int(tdiff * 1000), index)) 
+        return results[index]
 
