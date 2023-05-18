@@ -207,11 +207,11 @@ class ChatServer:
                     if msgtype_tmp == const.TIMELINESS:
                         google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         content = utils.get_google_search_content(query=google_query)
-                        content = content.get('content', "").encode('utf-8')
+                        content = content.get('content', "")
                         logger.debug("-------------raw len={}".format(len(content)))
                         content = content[:1500]
                         logger.debug("-------------trunc len={}".format(len(content)))
-                        query = '我的问题是：{}, 多角度回答问题，回答时参考下面的内容:\n\r{}'.format(query, content)
+                        query = '我的问题是：{}, 回答时参考下面的内容:\n\r{}'.format(query, content)
                         context['type'] = const.TEXT_ONCE
                         context['session_id'] = None
                     #请求chatgpt
