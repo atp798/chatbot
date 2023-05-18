@@ -198,21 +198,20 @@ class ChatServer:
                     msgtype = const.TEXT
                     response = "You requested inappropriate content to draw, please change a request."
                 else: #默认TEXT
+                    context = {}
+                    context['session_id'] = session_id
+                    context['type'] = msgtype
+                    context['loginfo'] = loginfo
                     msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
                     if msg_type_tmp == const.TIMELINESS:
                         google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         content = utils.get_google_search_content(query=google_query)
                         content = content.get('content', "")[:3000]
                         query = '参考以下内容，回答问题:{}.   {}'.format(query, content)
-                        msgtype = const.TEXT_ONCE
-                        session_id = None
-                    context = {}
-                    context['session_id'] = session_id
-                    context['type'] = msgtype
-                    context['loginfo'] = loginfo
+                        context['type'] = const.TEXT_ONCE
+                        context['session_id'] = None
                     #请求chatgpt
                     response = self._bot.reply(query, context)
-                    logger.info("11111111 res={}".format(response))
 
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
