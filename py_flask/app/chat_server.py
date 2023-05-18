@@ -6,7 +6,6 @@ import openai
 import os
 from config import get_config
 from bot.bot_factory import create_bot
-import xmltodict
 from wxmp.wxmp_main import process_wxmp_request
 import threading
 import traceback
@@ -173,8 +172,9 @@ class ChatServer:
                 loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
+                msgtype = const.TEXT
                 msgtype_tmp = intent_analysis.image_intent_analyser_18.do_analyse(query, loginfo=loginfo)
-                msgtype = msgtype if msgtype_tmp is None else msgtype
+                msgtype = msgtype if msgtype_tmp is None else msgtype_tmp
                 if msgtype == const.IMAGE_INAPPROPRIATE and country_code.lower() != 'cn': #国外放开黄反
                     loginfo.append("open_hf=true")
                     msgtype = const.IMAGE_SD
@@ -197,8 +197,12 @@ class ChatServer:
                 elif msgtype == const.IMAGE_INAPPROPRIATE:
                     msgtype = const.TEXT
                     response = "You requested inappropriate content to draw, please change a request."
-                #默认文字请求
-                else:
+                else: #默认TEXT
+                    msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
+                    if msg_type_tmp == const.TIMELINESS:
+                        google_query = intent_analysis.google_query_extractor(query, loginfo)
+                        logger.info("111111111111 query={}".format(google_query))
+                        utils.get_google_search_content(query=google_query)
                     context = {}
                     context['session_id'] = session_id
                     context['type'] = msgtype
