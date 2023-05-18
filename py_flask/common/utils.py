@@ -18,7 +18,7 @@ def get_google_search_content(query):
         headers = {'Content-Type': 'application/json'}
         data = {'query': query}
         response = requests.post(url, headers=headers, json=data)
-        data = response.json['data']
+        data = response.json()['data']
         titles_dict = {d['title']: d for d in data}
         titles = titles_dict.keys()
         titles_scores = [fuzz.partial_token_set_ratio(t) for t in titles]
