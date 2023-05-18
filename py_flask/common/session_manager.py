@@ -63,6 +63,7 @@ class SessionManager(object):
         如果session_id不在sessions中，创建一个新的session并添加到sessions中
         如果system_prompt不会空，会更新session的system_prompt并重置session
         """
+        #重复的session_id有没有多线程同步的问题？
         if session_id is None:
             return self.sessioncls(session_id, system_prompt, **self.session_args)
         logger.debug("build session, sessionid={}".format(session_id))
