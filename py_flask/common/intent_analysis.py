@@ -18,7 +18,7 @@ class IntentAnalyser(object):
         context['loginfo'] = loginfo
         context['system_prompt'] = self.description
         response = self.chatgpt_bot.reply(self.query_format.format(query), context) 
-        return response
+        return response['content']
 
     def do_analyse(self, query, loginfo=[]):
         pass

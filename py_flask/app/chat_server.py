@@ -144,7 +144,7 @@ class ChatServer:
                 #请求chatgpt 
                 response = self._bot.reply(query, context)
                 # 返回结果到客户端
-                return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
+                return jsonify({"code": 200, "msg": "success", "data": response['content'], "msgtype": msgtype})
             except Exception:
                 traceback.print_exc()
                 return jsonify({"code": 302, "msg": "internal error"})
@@ -213,10 +213,11 @@ class ChatServer:
                         context['session_id'] = None
                     #请求chatgpt
                     response = self._bot.reply(query, context)
+                    self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
                     logger.debug("final res={}".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
-                return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
+                return jsonify({"code": 200, "msg": "success", "data": response['content'], "msgtype": msgtype})
             except Exception:
                 traceback.print_exc()
                 logger.info("end process with error, {}".format('; '.join(loginfo)))

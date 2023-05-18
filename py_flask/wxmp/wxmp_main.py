@@ -85,11 +85,11 @@ def process_wxmp_request(request_json, bot):
         response = "未知错误，请尝试clear memory后重试"
 
     if context['type'] == const.TEXT:
-        post_respons2wxmp(response, toUserName)
+        post_respons2wxmp(response['content'], toUserName)
     elif context['type'] == const.IMAGE:
-        post_img_respons2wxmp(response, toUserName)
+        post_img_respons2wxmp(response['content'], toUserName)
     elif context['type'] == const.IMAGE_SD:
-        post_img_respons2wxmp_SD(response, toUserName)
+        post_img_respons2wxmp_SD(response['content'], toUserName)
     logger.info("end process, {}".format('; '.join(loginfo)))
     return
     

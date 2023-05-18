@@ -30,7 +30,10 @@ class ChatGPTBot(Bot):
             self._tb4chatgpt = TokenBucket(conf_json.get('rate_limit_chatgpt'))
         if len(conf_json.get('clear_memory_commands')) > 0:
             self._clear_memory_commands = conf_json.get('clear_memory_commands', 'clear memory')
-            
+
+    def save_session(self, session_id, reply_text, count):
+        self._session.session_reply(reply_text, session_id, count)
+
     def clear_session(self, session_id):
         self._session.clear_session(session_id)
 
@@ -81,7 +84,7 @@ class ChatGPTBot(Bot):
 
         tdiff = time.time() - btime
         loginfo.append("openai_query=[{}], openai_msgtype={}, openai_time={}".format(query[:5], msgtype, int(tdiff * 1000)))
-        return reply_content["content"]
+        return reply_content
 
     def reply_text(self, session, session_id, retry_count=0, strict_completion=False) -> dict:
         '''
