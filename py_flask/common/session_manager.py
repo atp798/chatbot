@@ -91,7 +91,7 @@ class SessionManager(object):
             if max_tokens is None:
                 max_tokens = conf().get("conversation_max_tokens", 1000)
             tokens_cnt = session.discard_exceeding(max_tokens, total_tokens)
-            logger.debug("save replay session, sessionid={} now session is{}".format(session_id, session.messages))
+            logger.debug("save reply session, sessionid={} now session is{}".format(session_id, session.messages))
         except Exception as e:
             logger.debug("Exception when counting tokens precisely for session: {}".format(str(e)))
         return session

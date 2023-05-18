@@ -212,6 +212,7 @@ class ChatServer:
                     context['loginfo'] = loginfo
                     #请求chatgpt
                     response = self._bot.reply(query, context)
+                    logger.info("11111111 res={}".format(response))
 
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
