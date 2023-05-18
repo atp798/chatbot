@@ -213,7 +213,8 @@ class ChatServer:
                         context['session_id'] = None
                     #请求chatgpt
                     response = self._bot.reply(query, context)
-                    self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
+                    if msgtype_tmp == const.TIMELINESS:
+                        self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
                     logger.debug("final res={}".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
