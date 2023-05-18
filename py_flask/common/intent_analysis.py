@@ -115,7 +115,7 @@ google_query_extractor = GoogleQueryExtractor(
          #'and answer me just 1 best query.')
     query_format=('给定一个句子"{}"'
         '从句子中提取出适合做搜索query的内容,'
-        '返回给我最好的一个query'
+        '把最好的一个query返回给我，不需要多余的语言.'
     )
 )
 
