@@ -207,7 +207,7 @@ class ChatServer:
                         google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         content = utils.get_google_search_content(query=google_query)
                         content = content.get('content', "")[:3000]
-                        query = '参考以下内容，回答问题:{}.   {}'.format(query, content)
+                        query = '{}, 参考以下内容:{}'.format(query, content)
                         context['type'] = const.TEXT_ONCE
                         context['session_id'] = None
                     #请求chatgpt
