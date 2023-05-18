@@ -55,8 +55,8 @@ class SessionManager(object):
 
 
         self.path = './session.data'
-        self.load_sessions()
-        threading.Thread(target=self.dump_sessions, daemon=True).start()
+        #self.load_sessions()
+        #threading.Thread(target=self.dump_sessions, daemon=True).start()
 
     def build_session(self, session_id, system_prompt=None):
         """
