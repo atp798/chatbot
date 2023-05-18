@@ -60,7 +60,7 @@ class TimelinessAnalayser(IntentAnalyser):
         if len(res) >= 2:
             msgtype = const.TIMELINESS if ("YES" in res[0]) and ("YES" in res[1]) else msgtype
             msgtype = const.TIMELINESS_INAPPROPRIATE if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
-        loginfo.append("timeliness_intent={}".format(res))
+        loginfo.append("timeliness_res={} timeliness_intent={}".format(res, msgtype))
         return msgtype
 
 
