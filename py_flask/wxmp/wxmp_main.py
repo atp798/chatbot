@@ -59,7 +59,6 @@ def process_wxmp_request(request_json, bot):
     if msg_type == const.TEXT:
         msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
         if msg_type_tmp == const.TIMELINESS:
-            logger.info('ttttttttt do google saerch')
             get_google_search_content(query=query)
         #msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
     logger.info('begin process, {}'.format('; '.join(loginfo)))
@@ -100,9 +99,7 @@ def get_google_search_content(query):
         headers = {'Content-Type': 'application/json'}
         data = {'query': query}
         response = requests.post(url, headers=headers, json=data)
-        logger.info("google search res raw:{}".format(response))
-        logger.info("google search res text:{}".format(response.text))
-        logger.info("google search res json:{}".format(response.json()))
+        logger.info("google search res json:{}".format(response.text.json()))
         return response.json
     except Exception as e:
         logger.exception(e)
