@@ -46,7 +46,7 @@ class ChatGPTBot(Bot):
         msgtype = context.get('type', None)
         if msgtype is None:
             logger.warn("[OPEN_AI] error request, no msgtype!")
-            return ""
+            return {"content":""}
 
         if not 'loginfo' in context:
             context['loginfo'] = []
@@ -57,13 +57,14 @@ class ChatGPTBot(Bot):
         if msgtype == const.TEXT or msgtype == const.TEXT_ONCE:
             if query == self._clear_memory_commands:
                 self._session.clear_session(session_id)
-                return 'memory cleared'
+                return {'content':'memory cleared'}
             session = self._session.session_query(query, session_id, context.get('system_prompt', None))
             if session is None:
-                return "Build session failed, query is tooooo long"
+                return {'content':"Build session failed, query is tooooo long"}
 
         btime = time.time()
 
+        reply_content = {}
         if msgtype == const.IMAGE:
             reply_content = self.reply_image(query, 0)
         elif msgtype == const.IMAGE_RAW:

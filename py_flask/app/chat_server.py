@@ -218,7 +218,6 @@ class ChatServer:
                         else:
                             response = self._bot.reply(query, context)
                     else:
-                        #请求chatgpt
                         response = self._bot.reply(query, context)
                     logger.debug("final res={}".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
