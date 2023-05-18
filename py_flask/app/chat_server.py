@@ -197,7 +197,7 @@ class ChatServer:
                     response = self._bot.reply(query, context)
                 elif msgtype == const.IMAGE_INAPPROPRIATE:
                     msgtype = const.TEXT
-                    response = "You requested inappropriate content to draw, please change a request."
+                    response = {'content':'You requested inappropriate content to draw, please change a request.'}
                 else: #默认TEXT
                     context = {}
                     context['session_id'] = session_id
@@ -215,6 +215,8 @@ class ChatServer:
                             context['session_id'] = None
                             response = self._bot.reply(query, context)
                             self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
+                        else:
+                            response = self._bot.reply(query, context)
                     else:
                         #请求chatgpt
                         response = self._bot.reply(query, context)
