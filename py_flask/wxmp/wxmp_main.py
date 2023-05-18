@@ -99,7 +99,7 @@ def get_google_search_content(query):
         headers = {'Content-Type': 'application/json'}
         data = {'query': query}
         response = requests.post(url, headers=headers, json=data)
-        print(response.json())
+        logger.info("google search res:{}".format(response.json()))
         return response.json
     except Exception as e:
         logger.exception(e)
