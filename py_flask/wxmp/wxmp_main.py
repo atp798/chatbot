@@ -57,7 +57,7 @@ def process_wxmp_request(request_json, bot):
 
     if msg_type == const.TEXT:
         msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
-        msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
+        #msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
     logger.info('begin process, {}'.format('; '.join(loginfo)))
     context = {}
     context['session_id'] = session_id
