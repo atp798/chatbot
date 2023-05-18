@@ -22,10 +22,10 @@ def get_google_search_content(query):
         titles_dict = {d['title']: d for d in data if len(d.get('content', "")) > 100}
         titles = list(titles_dict.keys())
         titles_scores = [fuzz.partial_token_set_ratio(query, t) for t in titles]
-        logger.info("google search titles={} scores={}".format(titles, titles_scores))
+        logger.debug("google search titles={} scores={}".format(titles, titles_scores))
         max_score = max(titles_scores)
         best_title = titles[ [i for i in range(0, len(titles_scores)) if titles_scores[i] == max_score][0] ]
-        logger.info("google search best_title={} content={}".format(best_title, titles_dict[best_title]))
+        logger.debug("google search best_title={} content={}".format(best_title, titles_dict[best_title][:500]))
         #logger.info("google search res json:{}".format(response.json()))
         return titles_dict[best_title]
     except Exception as e:
