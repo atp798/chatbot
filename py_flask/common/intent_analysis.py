@@ -109,9 +109,13 @@ timeliness_analayser = TimelinessAnalayser(
 
 google_query_extractor = GoogleQueryExtractor(
     desc='Now you are a content understanding machine, you will extract valid information in the text.',
-    query_format=('The request is: "{}".'
-        'Summarize the query used for google search from the request,'
-         'keep the language of query same with the request,'
-         'and answer me just 1 best query.')
+    #query_format=('The request is: "{}".'
+        #'Summarize the query used for google search from the request,'
+         #'keep the language of query same with the request,'
+         #'and answer me just 1 best query.')
+    query_format=('给定一个句子"{}"'
+        '从句子中提取出适合做搜索query的内容,'
+        '返回给我最好的一个query'
+    )
 )
 
