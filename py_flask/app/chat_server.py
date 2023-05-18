@@ -205,6 +205,7 @@ class ChatServer:
                         content = content.get('content', "")[:3000]
                         query = '参考以下内容，回答问题:{}.   {}'.format(query, content)
                         msgtype = const.TEXT_ONCE
+                        session_id = None
                     context = {}
                     context['session_id'] = session_id
                     context['type'] = msgtype
