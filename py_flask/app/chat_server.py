@@ -178,8 +178,9 @@ class ChatServer:
                 if msgtype == const.IMAGE_INAPPROPRIATE and country_code.lower() != 'cn': #国外放开黄反
                     loginfo.append("open_hf=true")
                     msgtype = const.IMAGE_SD
-
                 loginfo.append("msgtype={}".format(msgtype))
+
+                msgtype_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
                 logger.info('begin process, {}'.format('; '.join(loginfo)))
 
                 response = None
@@ -202,8 +203,8 @@ class ChatServer:
                     context['session_id'] = session_id
                     context['type'] = msgtype
                     context['loginfo'] = loginfo
-                    msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
-                    if msg_type_tmp == const.TIMELINESS:
+                    
+                    if msgtype_tmp == const.TIMELINESS:
                         google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         content = utils.get_google_search_content(query=google_query)
                         content = content.get('content', "")[:3000]
