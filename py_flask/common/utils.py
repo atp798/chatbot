@@ -21,7 +21,7 @@ def get_google_search_content(query):
         data = response.json()['data']
         titles_dict = {d['title']: d for d in data}
         titles = titles_dict.keys()
-        titles_scores = [fuzz.partial_token_set_ratio(t) for t in titles]
+        titles_scores = [fuzz.partial_token_set_ratio(query, t) for t in titles]
         logger.info("google search titles={} scores={}".format(titles, titles_scores))
         max_score = max(titles_scores)
         best_title = titles[ [i for i in range(0, len(titles_scores)) if titles_scores[i] == max_score][0] ]
