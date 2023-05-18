@@ -196,7 +196,10 @@ class ChatGPTBot(Bot):
         url = "http://106.75.25.171:8989/sdapi/v1/txt2img"
         body = {
             "prompt": prompt + ",(masterpiece:1.2, best quality),((iphone wallpaper)),4K,8K,high quality",
-            "negative_prompt": "(no clothes:1.1),(naked:1.2),(nsfw:1.2),(multi hands),(worst quality, low quality:1.4),(extra fingers),(extra hands),(mutated hands and finger),(ugly eyes:1.2),(fused fingers),(long neck:1.2)",
+            "negative_prompt": ('(no clothes:1.1),(naked:1.2),(nsfw:1.2),(multi hands),(worst quality, low quality:1.4),'
+                                '(extra fingers),(extra hands),(mutated hands and finger),(ugly eyes:1.2),(fused fingers),(long neck:1.2)",'
+                                '(texts words watermarks:1.1)'
+                                ),
             "height": 768,
             "width": 512,
             "steps": 20,
