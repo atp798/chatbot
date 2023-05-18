@@ -12,6 +12,7 @@ import re
 from wxmp.wxmp_post2user import post_img_respons2wxmp, post_respons2wxmp, post_img_respons2wxmp_SD
 from common import const
 from common import intent_analysis
+import requests
 
 def process_wxmp_request(request_json, bot):
     #parameter constant
@@ -57,6 +58,8 @@ def process_wxmp_request(request_json, bot):
 
     if msg_type == const.TEXT:
         msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
+        if msg_type_tmp == const.TIMELINESS:
+            get_google_search_content(query=query)
         #msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
     logger.info('begin process, {}'.format('; '.join(loginfo)))
     context = {}
@@ -89,6 +92,18 @@ def process_wxmp_request(request_json, bot):
     logger.info("end process, {}".format('; '.join(loginfo)))
     return
     
+
+def get_google_search_content(query):
+    try:
+        url = 'http://127.0.0.1:8084/openai/session/google_search'
+        headers = {'Content-Type': 'application/json'}
+        data = {'query': query}
+        response = requests.post(url, headers=headers, json=data)
+        print(response.json())
+        return response.json
+    except Exception as e:
+        logger.exception(e)
+        return None
 
 def get_welcome_words():
     return '''
