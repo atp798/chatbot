@@ -200,7 +200,7 @@ class ChatServer:
                 else: #默认TEXT
                     msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
                     if msg_type_tmp == const.TIMELINESS:
-                        google_query = intent_analysis.google_query_extractor(query, loginfo)
+                        google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         logger.info("111111111111 query={}".format(google_query))
                         utils.get_google_search_content(query=google_query)
                     context = {}
