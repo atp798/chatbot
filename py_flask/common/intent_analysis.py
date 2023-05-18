@@ -103,7 +103,7 @@ timeliness_analayser = TimelinessAnalayser(
     desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
     query_format=('Given a sentence "{}", answer two questions:'
         '1. Is this sentence a request for timeliness?'
-        '2. Is this request suitable for 15 years old?'
+        '2. Is this request suitable for 18 years old?'
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
 

@@ -77,7 +77,7 @@ class ChatGPTBot(Bot):
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"])
 
         tdiff = time.time() - btime
-        loginfo.append("openai_query={}, openai_msgtype={}, openai_time={}".format(query[:5], msgtype, int(tdiff * 1000)))
+        loginfo.append("openai_query=[{}], openai_msgtype={}, openai_time={}".format(query[:5], msgtype, int(tdiff * 1000)))
         return reply_content["content"]
 
     def reply_text(self, session, session_id, retry_count=0, strict_completion=False) -> dict:
