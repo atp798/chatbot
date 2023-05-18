@@ -173,7 +173,8 @@ class ChatServer:
                 loginfo.append("session_id={}".format(session_id))
 
                 #意图判断
-                msgtype = intent_analysis.image_intent_analyser_18.do_analyse(query, loginfo=loginfo)
+                msgtype_tmp = intent_analysis.image_intent_analyser_18.do_analyse(query, loginfo=loginfo)
+                msgtype = msgtype if msgtype_tmp is None else msgtype
                 if msgtype == const.IMAGE_INAPPROPRIATE and country_code.lower() != 'cn': #国外放开黄反
                     loginfo.append("open_hf=true")
                     msgtype = const.IMAGE_SD

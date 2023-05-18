@@ -31,7 +31,7 @@ class ImageIntentAnalyser(IntentAnalyser):
         res = self.do_chatgpt(query, loginfo)
         res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', res.upper())
 
-        msgtype = const.TEXT
+        msgtype = None
         if len(res) >= 2:
             msgtype = const.IMAGE_SD if ("YES" in res[0]) and ("YES" in res[1]) else msgtype
             msgtype = const.IMAGE_INAPPROPRIATE if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
@@ -54,8 +54,14 @@ class TimelinessAnalayser(IntentAnalyser):
         super().__init__(desc, query_format)
     def do_analyse(self, query, loginfo=[]):
         res = self.do_chatgpt(query, loginfo)
-        res = re.find(r'\b(YES|NO|UNCERTAIN)\b', res.upper())
-        return True if "YES" in res else False
+        res = re.findall(r'\b(YES|NO|UNCERTAIN)\b', res.upper())
+
+        msgtype = None
+        if len(res) >= 2:
+            msgtype = const.TIMELINESS if ("YES" in res[0]) and ("YES" in res[1]) else msgtype
+            msgtype = const.TIMELINESS_INAPPROPRIATE if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
+        loginfo.append("timeliness_intent={}".format(res))
+        return msgtype
 
 
 image_intent_analyser_18 = ImageIntentAnalyser(
@@ -81,9 +87,10 @@ content_extractor_english = ContentExtractor(
 )
 
 timeliness_analayser = TimelinessAnalayser(
-    desc='Now you are a text analyzer, and you will analyze the deep intent of the text.',
-    query_format=('Given a sentence "{}",'
-        'Tell me if this sentence includes a requirement for timeliness.'
-        'Answer me with one word, and the answer should be either YES or NO.')
+    desc='Now you are a text analyzer, you will analyze the text for intent and suitability for minors.',
+    query_format=('Given a sentence "{}", answer two questions:'
+        '1. Is this sentence a request for timeliness?'
+        '2. Is this request suitable for 15 years old?'
+        'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
 

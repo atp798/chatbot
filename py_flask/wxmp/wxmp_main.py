@@ -48,15 +48,16 @@ def process_wxmp_request(request_json, bot):
     msg_type = const.IMAGE_SD if any(item.lower() in {'draw'} for item in query.split(' ')) else msg_type #对英文，前4个词包含画
     if msg_type == const.IMAGE_SD:
         #意图判断
-        msg_type = intent_analysis.image_intent_analyser_15.do_analyse(query, loginfo=loginfo)
+        msg_type_tmp = intent_analysis.image_intent_analyser_15.do_analyse(query, loginfo=loginfo)
+        msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
         if msg_type == const.IMAGE_INAPPROPRIATE:
             post_respons2wxmp("您的绘画请求中可能包含不适合青少年的内容，请重新提问。", toUserName)
             logger.info('begin process, {}'.format('; '.join(loginfo)))
             return
 
     if msg_type == const.TEXT:
-        timeliness_intent = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
-        loginfo.append("timeline={}".format(timeliness_intent))
+        msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
+        msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
     logger.info('begin process, {}'.format('; '.join(loginfo)))
     context = {}
     context['session_id'] = session_id
