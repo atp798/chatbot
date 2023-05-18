@@ -60,21 +60,24 @@ class ChatGPTBot(Bot):
                 return "Build session failed, query is tooooo long"
 
         btime = time.time()
-        if msgtype == const.TEXT_ONCE:
-            #对于text once请求，要求他的结果尽量确定，并且不污染session
-            reply_content = self.reply_text(session.messages, session_id, retry_count=0, strict_completion=True)
-            #if reply_content["completion_tokens"] > 0:
-                #self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 1024)
-        elif msgtype == const.IMAGE:
+
+        if msgtype == const.IMAGE:
             reply_content = self.reply_image(query, 0)
         elif msgtype == const.IMAGE_RAW:
             reply_content = self.reply_image_rawdata(query)
         elif msgtype == const.IMAGE_SD:
             reply_content = {"content": self.request_sd_image(query, context)}
+        elif msgtype == const.TEXT_ONCE:
+            #对于text once请求，要求他的结果尽量确定，并且不污染session
+            reply_content = self.reply_text(session.messages, session_id, retry_count=0, strict_completion=True)
+            logger.debug("openai replay_text, res={}".format(reply_content["content"]))
+            #if reply_content["completion_tokens"] > 0:
+                #self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"], 1024)
         else: #msgtype == const.TEXT:
             reply_content = self.reply_text(session.messages, session_id, 0)
             if reply_content["completion_tokens"] > 0:
                 self._session.session_reply(reply_content["content"], session_id, reply_content["total_tokens"])
+            logger.debug("openai replay_text, res={}".format(reply_content["content"]))
 
         tdiff = time.time() - btime
         loginfo.append("openai_query=[{}], openai_msgtype={}, openai_time={}".format(query[:5], msgtype, int(tdiff * 1000)))
