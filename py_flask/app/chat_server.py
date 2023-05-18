@@ -207,17 +207,17 @@ class ChatServer:
                     if msgtype_tmp == const.TIMELINESS:
                         google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         content = utils.get_google_search_content(query=google_query)
-                        content = content.get('content', "")
-                        logger.debug("-------------raw len={}".format(len(content)))
-                        content = content[:1500]
-                        logger.debug("-------------trunc len={}".format(len(content)))
-                        query = '我的问题是：{}, 回答时参考下面的内容:\n\r{}'.format(query, content)
-                        context['type'] = const.TEXT_ONCE
-                        context['session_id'] = None
-                    #请求chatgpt
-                    response = self._bot.reply(query, context)
-                    if msgtype_tmp == const.TIMELINESS:
-                        self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
+                        if content is not None:
+                            content = content.get('content', "")
+                            content = content[:1500]
+                            query = '我的问题是：{}, 回答时参考下面的内容:\n\r{}'.format(query, content)
+                            context['type'] = const.TEXT_ONCE
+                            context['session_id'] = None
+                            response = self._bot.reply(query, context)
+                            self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
+                    else:
+                        #请求chatgpt
+                        response = self._bot.reply(query, context)
                     logger.debug("final res={}".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
