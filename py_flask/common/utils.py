@@ -19,7 +19,7 @@ def get_google_search_content(query):
         data = {'query': query}
         response = requests.post(url, headers=headers, json=data)
         data = response.json()['data']
-        titles_dict = {d['title']: d for d in data and len(d.get('content', "")) > 100}
+        titles_dict = {d['title']: d for d in data if len(d.get('content', "")) > 100}
         titles = list(titles_dict.keys())
         titles_scores = [fuzz.partial_token_set_ratio(query, t) for t in titles]
         logger.info("google search titles={} scores={}".format(titles, titles_scores))
