@@ -174,12 +174,17 @@ class GoogleSearch:
             )
     
     def request_link(self, link):
-        res = requests.get(link)
+        headers = {'Accept-Charset': 'utf-8'}
+        res = requests.get(link, headers=headers)
         res.encoding = 'utf-8'
         soup = BeautifulSoup(res.text, "html.parser")
         for script in soup(["script", "style"]):
             script.extract()
-        text = soup.body.get_text()
+        body_content = soup.find('body').text if soup.find('body') else None
+        if body_content:
+            text = body_content
+        else:
+            text = soup.get_text()
         lines = (line.strip() for line in text.splitlines())
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
         text = "\n".join(chunk for chunk in chunks if chunk) 
@@ -198,13 +203,62 @@ class GoogleSearch:
         btime = time.time()
         url = "https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
         logger.info(f"google search api: {url}")
+        headers = {'Accept-Charset': 'utf-8'}
+        res = requests.get(url, headers=headers)
+        res.encoding = 'utf-8'
+        res = json.loads(res.text)
+        if 'spelling' in res:
+            query = res['spelling']['correctedQuery']
+            url ="https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
+            logger.info(f"google search api: {url}")
+            headers = {'Accept-Charset': 'utf-8'}
+            res = requests.get(url, headers=headers)
+            res.encoding = 'utf-8'
+            res = json.loads(res.text)
+
+        data = res.get('items')
+        results = []
+        workers = []
+        ln = 5 if len(data) > 5 else len(data)
+        for i in range(ln):
+            rtn = dict()
+            rtn["title"] = data[i]["title"]
+            results.append(rtn)
+            thread = threading.Thread(target=self.process_link, args=(i, data[i]["link"],rtn,query, ))
+            thread.start()
+            workers.append(thread)
+        
+        for thread in workers:
+            thread.join()
+        '''
+        rtnlen = len(results[0]["content"])
+        index = 0
+        for i, result in enumerate(results):
+            l = len(result["content"])
+            if abs(l-3000) < abs(rtnlen-3000):
+                index = i
+                rtnlen = l
+        if len(results[index]["content"]) > 3500:
+            results[index]["content"] = results[index]["content"][0: 3500]
+        '''
+        tdiff = time.time() - btime
+        logger.info("search_time={} index={}".format(int(tdiff * 1000), 0)) 
+        return results
+    
+'''
+    def search(self, query):
+        btime = time.time()
+        url = "https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
+        logger.info(f"google search api: {url}")
         res = requests.get(url)
+        res.encoding = 'utf-8'
         res = json.loads(res.text)
         if 'spelling' in res:
             query = res['spelling']['correctedQuery']
             url ="https://www.googleapis.com/customsearch/v1?key="+self._google_search_api_key+"&cx="+self._google_search_cx+"&q=" + query
             logger.info(f"google search api: {url}")
             res = requests.get(url)
+            res.encoding = 'utf-8'
             res = json.loads(res.text)
 
         data = res.get('items')
@@ -234,4 +288,4 @@ class GoogleSearch:
         tdiff = time.time() - btime
         logger.info("search_time={} index={}".format(int(tdiff * 1000), index)) 
         return results[index]
-
+'''
