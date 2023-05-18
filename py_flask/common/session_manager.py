@@ -79,8 +79,7 @@ class SessionManager(object):
         try:
             max_tokens = conf().get("conversation_max_tokens", 1000)
             total_tokens = session.discard_exceeding(max_tokens, None)
-            logger.debug("prompt tokens used={}".format(total_tokens))
-            logger.debug("query sessionid={} now session is{}".format(session_id, session.messages))
+            logger.debug("save query session, query sessionid={} now session is{}".format(session_id, session.messages))
         except Exception as e:
             logger.debug("Exception when counting tokens precisely for prompt: {}".format(str(e)))
         return session
@@ -92,8 +91,7 @@ class SessionManager(object):
             if max_tokens is None:
                 max_tokens = conf().get("conversation_max_tokens", 1000)
             tokens_cnt = session.discard_exceeding(max_tokens, total_tokens)
-            logger.debug("raw total_tokens={}, savesession tokens={}".format(total_tokens, tokens_cnt))
-            logger.debug("reply sessionid={} now session is{}".format(session_id, session.messages))
+            logger.debug("save replay session, sessionid={} now session is{}".format(session_id, session.messages))
         except Exception as e:
             logger.debug("Exception when counting tokens precisely for session: {}".format(str(e)))
         return session

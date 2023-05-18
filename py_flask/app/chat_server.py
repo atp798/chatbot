@@ -201,8 +201,10 @@ class ChatServer:
                     msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
                     if msg_type_tmp == const.TIMELINESS:
                         google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
-                        logger.info("111111111111 query={}".format(google_query))
-                        utils.get_google_search_content(query=google_query)
+                        content = utils.get_google_search_content(query=google_query)
+                        content = content.get('content', "")[:3500]
+                        query = '参考以下内容，回答问题:{}.   {}'.format(query, content)
+                        msgtype = const.TEXT_ONCE
                     context = {}
                     context['session_id'] = session_id
                     context['type'] = msgtype
