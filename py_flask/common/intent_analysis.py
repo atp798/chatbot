@@ -35,7 +35,7 @@ class ImageIntentAnalyser(IntentAnalyser):
         if len(res) >= 2:
             msgtype = const.IMAGE_SD if ("YES" in res[0]) and ("YES" in res[1]) else msgtype
             msgtype = const.IMAGE_INAPPROPRIATE if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
-        loginfo.append("image_intent={}".format(res))
+        loginfo.append("image_itent_res={} image_intent={}".format(res, msgtype))
         return msgtype
 
 class ContentExtractor(IntentAnalyser):
