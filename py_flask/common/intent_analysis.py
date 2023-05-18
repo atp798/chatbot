@@ -71,8 +71,8 @@ class GoogleQueryExtractor(IntentAnalyser):
     def do_analyse(self, query, loginfo=[]):
         res = self.do_chatgpt(query, loginfo)
         prompt = res.strip('"')
-        parts = prompt.split(':', 1)
-        prompt = prompt if len(parts) < 2 else parts[1].strip()
+        #parts = prompt.split(':', 1)
+        #prompt = prompt if len(parts) < 2 else parts[1].strip()
         loginfo.append('google_search_query={}'.format(prompt))
         return prompt
 
@@ -107,11 +107,11 @@ timeliness_analayser = TimelinessAnalayser(
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
 )
 
-google_query_extractor = ContentExtractor(
+google_query_extractor = GoogleQueryExtractor(
     desc='Now you are a content understanding machine, you will extract valid information in the text.',
     query_format=('The request is: "{}".'
         'Summarize the query used for google search from the request,'
          'keep the language of query same with the request,'
-         'and answer me just 1 best query starting with "Query is:":')
+         'and answer me just 1 best query.')
 )
 
