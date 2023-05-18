@@ -212,7 +212,7 @@ class ChatServer:
                         context['session_id'] = None
                     #请求chatgpt
                     response = self._bot.reply(query, context)
-
+                    logger.debug("final res={}".format(response))
                 logger.info("end process, {}".format('; '.join(loginfo)))
                 # 返回结果到客户端
                 return jsonify({"code": 200, "msg": "success", "data": response, "msgtype": msgtype})
