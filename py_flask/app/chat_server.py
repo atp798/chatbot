@@ -211,7 +211,7 @@ class ChatServer:
                         logger.debug("-------------raw len={}".format(len(content)))
                         content = content[:1500]
                         logger.debug("-------------trunc len={}".format(len(content)))
-                        query = '我的问题是：{}, 多方面多角度回答问题，回答时参考下面的内容:\n\r{}'.format(query, content)
+                        query = '我的问题是：{}, 多角度回答问题，回答时参考下面的内容:\n\r{}'.format(query, content)
                         context['type'] = const.TEXT_ONCE
                         context['session_id'] = None
                     #请求chatgpt
