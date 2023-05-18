@@ -58,7 +58,8 @@ def process_wxmp_request(request_json, bot):
 
     logger.info('begin process, {}'.format('; '.join(loginfo)))
     if msg_type == const.TEXT:
-        msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
+        #msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
+        msg_type_tmp = None
         if msg_type_tmp == const.TIMELINESS:
             google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
             content=get_google_search_content(query=google_query)
