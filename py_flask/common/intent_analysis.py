@@ -47,6 +47,7 @@ class ContentExtractor(IntentAnalyser):
         prompt = res.strip('"')
         parts = prompt.split('Draw', 1)
         prompt = prompt if len(parts) < 2 else parts[1].strip()
+        loginfo.append('image_query={}'.format(prompt))
         return prompt
     
 class TimelinessAnalayser(IntentAnalyser):
@@ -62,6 +63,18 @@ class TimelinessAnalayser(IntentAnalyser):
             msgtype = const.TIMELINESS_INAPPROPRIATE if ("YES" in res[0]) and ("NO" in res[1]) else msgtype
         loginfo.append("timeliness_res={} timeliness_intent={}".format(res, msgtype))
         return msgtype
+    
+class GoogleQueryExtractor(IntentAnalyser):
+    def __init__(self, desc="", query_format="") -> None:
+        super().__init__(desc, query_format)
+
+    def do_analyse(self, query, loginfo=[]):
+        res = self.do_chatgpt(query, loginfo)
+        prompt = res.strip('"')
+        parts = prompt.split(':', 1)
+        prompt = prompt if len(parts) < 2 else parts[1].strip()
+        loginfo.append('google_search_query={}'.format(prompt))
+        return prompt
 
 
 image_intent_analyser_18 = ImageIntentAnalyser(
@@ -92,5 +105,11 @@ timeliness_analayser = TimelinessAnalayser(
         '1. Is this sentence a request for timeliness?'
         '2. Is this request suitable for 15 years old?'
         'Return two answers, each answer should not exceed one word, and the answer should be either YES or NO')
+)
+
+google_query_extractor = ContentExtractor(
+    desc='Now you are a content understanding machine, you will extract valid information in the text.',
+    query_format=('The request is: "{}".'
+        'Summarize the query used for google search from the request, answer me start with "Query is:":')
 )
 

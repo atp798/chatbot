@@ -60,8 +60,8 @@ def process_wxmp_request(request_json, bot):
     if msg_type == const.TEXT:
         msg_type_tmp = intent_analysis.timeliness_analayser.do_analyse(query, loginfo)
         if msg_type_tmp == const.TIMELINESS:
-            pass
-            #get_google_search_content(query=query)
+            google_query = intent_analysis.google_query_extractor(query, loginfo)
+            get_google_search_content(query=google_query)
         #msg_type = msg_type if msg_type_tmp is None else msg_type_tmp
     context = {}
     context['session_id'] = session_id
