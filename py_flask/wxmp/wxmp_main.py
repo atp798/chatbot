@@ -82,7 +82,7 @@ def process_wxmp_request(request_json, bot):
             break
     #fromUserName = request_json["ToUserName"] 
     if not response:
-        response = "未知错误，请尝试clear memory后重试"
+        response = {'content':'未知错误，请尝试clear memory后重试'}
 
     if context['type'] == const.TEXT:
         post_respons2wxmp(response['content'], toUserName)
