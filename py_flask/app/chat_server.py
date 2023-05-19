@@ -17,6 +17,7 @@ import re
 from common.google_search import GoogleSearch
 from config import conf
 from common import intent_analysis
+import random
 
 
 class ChatServer:
@@ -207,14 +208,16 @@ class ChatServer:
                     if msgtype_tmp == const.TIMELINESS:
                         #google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
                         content = utils.get_google_search_content(query=query)
-                        if content is not None:
-                            content = content.get('content', "")
+                        if content is not None and len(content.get('content', '')) > 100:
+                            content = content.get('content')
                             content = content[:1500]
-                            #query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
                             context['type'] = const.TEXT_ONCE
-                            context['session_id'] = None
-                            self._bot._session.session_query(content, None, "")
+                            #query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
+                            sid = 'testsession001.' + str(time.time()) + "." + str(random.random())
+                            context['session_id'] = sid
+                            self._bot._session.session_query(content, sid, "")
                             response = self._bot.reply(query, context)
+                            self._bot._session.sessions.pop(sid)
                             self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
                         else:
                             response = self._bot.reply(query, context)
