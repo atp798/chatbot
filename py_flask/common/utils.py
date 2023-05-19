@@ -3,6 +3,8 @@ from common.log import logger
 import requests
 from thefuzz import fuzz
 from thefuzz import process
+import jieba
+from rank_bm25 import BM25Okapi
 
 def is_chinese(string):
     """
@@ -11,6 +13,13 @@ def is_chinese(string):
     pattern = re.compile(r'[\u4e00-\u9fa5]')
     match = pattern.search(string)
     return match is not None
+
+
+def relevance_by_bm25(query, docs):
+    query_token = list(jieba.cut_for_search(query))
+    doc_token = [list(jieba.cut_for_search(d)) for d in docs]
+    bm25 = BM25Okapi(doc_token)
+    return bm25.get_scores(query_token)
 
 def get_google_search_content(query):
     try:
@@ -22,9 +31,11 @@ def get_google_search_content(query):
         titles_dict = {d['title']: d for d in data if len(d.get('content', "")) > 100}
         titles = list(titles_dict.keys())
         title_contents = [t + '\n\r' + titles_dict[t]['content'] for t in titles]
-        titles_scores_1 = [fuzz.partial_ratio(query, t) for t in titles]
-        titles_scores_2 = [fuzz.partial_ratio(query, t) for t in title_contents]
-        titles_scores = [titles_scores_1[i] + titles_scores_2[i] for i in range(0, len(titles_scores_1))]
+
+        #titles_scores_1 = [fuzz.partial_ratio(query, t) for t in titles]
+        #titles_scores_2 = [fuzz.partial_ratio(query, t) for t in title_contents]
+        #titles_scores = [titles_scores_1[i] + titles_scores_2[i] for i in range(0, len(titles_scores_1))]
+        titles_scores = relevance_by_bm25(query, title_contents)
 
         logger.debug("google search titles={} scores={}".format(titles, titles_scores))
         max_score = max(titles_scores)
