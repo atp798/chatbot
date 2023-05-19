@@ -25,7 +25,7 @@ def get_google_search_content(query):
         logger.debug("google search titles={} scores={}".format(titles, titles_scores))
         max_score = max(titles_scores)
         best_title = titles[ [i for i in range(0, len(titles_scores)) if titles_scores[i] == max_score][0] ]
-        logger.debug("google search best_title={} content={}".format(best_title, titles_dict[best_title][:500]))
+        logger.debug("google search best_title={} content={}".format(best_title, titles_dict[best_title]))
         #logger.info("google search res json:{}".format(response.json()))
         return titles_dict[best_title]
     except Exception as e:
