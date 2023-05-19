@@ -213,13 +213,14 @@ class ChatServer:
                             content = content.get('content')
                             content = content[:1500]
                             context['type'] = const.TEXT_ONCE
-                            #query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
-                            sid = 'testsession001.' + str(time.time()) + "." + str(random.random())
-                            context['session_id'] = sid
+                            context['session_id'] = None
+                            query = '{},参考下面的内容：{}'.format(query, content)
+                            #sid = 'testsession001.' + str(time.time()) + "." + str(random.random())
+                            #context['session_id'] = sid
                             #self._bot._session.session_query(content, sid, "")
-                            self._bot._session.session_reply(content, sid, 0)
+                            #self._bot._session.session_reply(content, sid, 0)
                             response = self._bot.reply(query, context)
-                            self._bot._session.sessions.pop(sid)
+                            #self._bot._session.sessions.pop(sid)
                             self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
                         else:
                             response = self._bot.reply(query, context)
