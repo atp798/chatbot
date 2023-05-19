@@ -216,6 +216,7 @@ class ChatServer:
                             sid = 'testsession001.' + str(time.time()) + "." + str(random.random())
                             context['session_id'] = sid
                             self._bot._session.session_query(content, sid, "")
+                            self._bot._session.session_reply(content, session_id, 0)
                             response = self._bot.reply(query, context)
                             self._bot._session.sessions.pop(sid)
                             self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
