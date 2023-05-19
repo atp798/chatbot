@@ -215,7 +215,7 @@ class ChatServer:
                             #query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
                             sid = 'testsession001.' + str(time.time()) + "." + str(random.random())
                             context['session_id'] = sid
-                            self._bot._session.session_query(content, sid, "")
+                            #self._bot._session.session_query(content, sid, "")
                             self._bot._session.session_reply(content, sid, 0)
                             response = self._bot.reply(query, context)
                             self._bot._session.sessions.pop(sid)
