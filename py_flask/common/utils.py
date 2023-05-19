@@ -22,7 +22,10 @@ def get_google_search_content(query):
         titles_dict = {d['title']: d for d in data if len(d.get('content', "")) > 100}
         titles = list(titles_dict.keys())
         title_contents = [t + '\n\r' + titles_dict[t]['content'] for t in titles]
-        titles_scores = [fuzz.partial_ratio(query, t) for t in title_contents]
+        titles_scores_1 = [fuzz.partial_ratio(query, t) for t in titles]
+        titles_scores_2 = [fuzz.partial_ratio(query, t) for t in title_contents]
+        titles_scores = [titles_scores_1[i] + titles_scores_2[i] for i in range(0, len(titles_scores_1))]
+
         logger.debug("google search titles={} scores={}".format(titles, titles_scores))
         max_score = max(titles_scores)
         best_title = titles[ [i for i in range(0, len(titles_scores)) if titles_scores[i] == max_score][0] ]
