@@ -21,7 +21,7 @@ def get_google_search_content(query):
         data = response.json()['data'][:3]
         titles_dict = {d['title']: d for d in data if len(d.get('content', "")) > 100}
         titles = list(titles_dict.keys())
-        title_contents = [t + '\n\r' + titles_dict[t] for t in titles]
+        title_contents = [t + '\n\r' + titles_dict[t]['content'] for t in titles]
         titles_scores = [fuzz.token_set_ratio(query, t) for t in title_contents]
         logger.debug("google search titles={} scores={}".format(titles, titles_scores))
         max_score = max(titles_scores)
