@@ -210,7 +210,7 @@ class ChatServer:
                         if content is not None:
                             content = content.get('content', "")
                             content = content[:1500]
-                            query = '我的问题是：{}, 回答时参考下面的内容:\n\r{}'.format(query, content)
+                            query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
                             context['type'] = const.TEXT_ONCE
                             context['session_id'] = None
                             response = self._bot.reply(query, context)
