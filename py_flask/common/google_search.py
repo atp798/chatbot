@@ -176,6 +176,8 @@ class GoogleSearch:
     def request_link(self, link):
         headers = {'Accept-Charset': 'utf-8'}
         res = requests.get(link, headers=headers)
+        if res.status_code != 200:
+            return ""
         res.encoding = 'utf-8'
         soup = BeautifulSoup(res.text, "html.parser")
         for script in soup(["script", "style"]):
@@ -230,6 +232,11 @@ class GoogleSearch:
         
         for thread in workers:
             thread.join()
+        
+        for i in reversed(range(len(results))):
+            if len(results[i]["content"]) == 0:
+                del results[i]
+
         '''
         rtnlen = len(results[0]["content"])
         index = 0
