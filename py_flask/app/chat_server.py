@@ -210,9 +210,10 @@ class ChatServer:
                         if content is not None:
                             content = content.get('content', "")
                             content = content[:1500]
-                            query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
+                            #query = '根据下面的文本中回答我的问题:{}    {}'.format(query, content)
                             context['type'] = const.TEXT_ONCE
                             context['session_id'] = None
+                            self._bot._session.session_query(content, None, "")
                             response = self._bot.reply(query, context)
                             self._bot.save_session(session_id=session_id, reply_text=response['content'], count=response["total_tokens"])
                         else:
