@@ -205,8 +205,8 @@ class ChatServer:
                     context['loginfo'] = loginfo
                     
                     if msgtype_tmp == const.TIMELINESS:
-                        google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
-                        content = utils.get_google_search_content(query=google_query)
+                        #google_query = intent_analysis.google_query_extractor.do_analyse(query, loginfo)
+                        content = utils.get_google_search_content(query=query)
                         if content is not None:
                             content = content.get('content', "")
                             content = content[:1500]
