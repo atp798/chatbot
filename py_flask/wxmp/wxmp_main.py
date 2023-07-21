@@ -47,6 +47,7 @@ def process_wxmp_request(request_json, bot):
     msg_type = const.TEXT
     msg_type = const.IMAGE_SD if any(item in {'画', '图'} for item in query) else msg_type #对中文，前4个字包含画
     msg_type = const.IMAGE_SD if any(item.lower() in {'draw'} for item in query.split(' ')) else msg_type #对英文，前4个词包含画
+    msg_type = const.TEXT
     if msg_type == const.IMAGE_SD:
         #意图判断
         msg_type_tmp = intent_analysis.image_intent_analyser_15.do_analyse(query, loginfo=loginfo)
